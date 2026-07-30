@@ -1,0 +1,53 @@
+{
+  "inputIndex": 0,
+  "invoiceNumber": "INV-2026-0001",
+  "processingStatus": "SUCCEEDED",
+  "conformanceStatus": "ACCEPTED",
+  "artifactDelivered": true,
+  "artifactKey": "ARTIFACT-0001-INV-2026-0001.xml",
+  "evidenceKey": "EVIDENCE-0001.json",
+  "evidence": {
+    "evidenceVersion": "1.0",
+    "product": "peppol",
+    "invoiceNumber": "INV-2026-0001",
+    "artifactSha256": "0b178b21996f9ceaec8a603e3d5d361f71c75499c8ae723c330a9cc1c31a9d4b",
+    "artifactBytes": 5361,
+    "mediaType": "application/xml",
+    "standard": "Peppol BIS Billing",
+    "versions": {
+      "generator": "0.1.0",
+      "standard": "3.0.20",
+      "ruleset": "Peppol BIS Billing 3.0.20 active rules"
+    },
+    "validation": {
+      "status": "ACCEPTED",
+      "scope": "PINNED_OFFLINE_TECHNICAL_PREFLIGHT",
+      "engine": "UBL XSD plus Saxon Schematron",
+      "scenario": "Peppol BIS Billing 3.0.20 active rules",
+      "profile": "PEPPOL_BIS_BILLING_3.0.20",
+      "counts": {
+        "fatal": 0,
+        "error": 0,
+        "warning": 0,
+        "information": 0
+      },
+      "findings": [],
+      "findingsTruncated": false
+    },
+    "generatedAt": "2026-07-30T09:14:58Z",
+    "transmitted": false,
+    "acceptedByNetwork": null,
+    "networkIdentifier": null,
+    "signed": false,
+    "archived": false,
+    "scope": "PINNED_OFFLINE_TECHNICAL_PREFLIGHT"
+  },
+  "error": null,
+  "sampleProvenance": {
+    "kind": "LOCAL_ENGINE_OUTPUT",
+    "apifyRun": false,
+    "liveActorOutput": false,
+    "actorPublicationStatus": "PRIVATE_RELEASE_PENDING",
+    "repositoryAnnotation": true
+  }
+}
