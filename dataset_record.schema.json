@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "inputIndex": {
+      "type": "integer",
+      "title": "Input index"
+    },
+    "invoiceNumber": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "title": "Invoice number"
+    },
+    "processingStatus": {
+      "type": "string",
+      "enum": [
+        "SUCCEEDED",
+        "FAILED"
+      ],
+      "title": "Processing"
+    },
+    "conformanceStatus": {
+      "type": "string",
+      "enum": [
+        "ACCEPTED",
+        "REJECTED",
+        "NOT_EVALUATED"
+      ],
+      "title": "Pinned validation"
+    },
+    "artifactDelivered": {
+      "type": "boolean",
+      "title": "Artifact delivered"
+    },
+    "artifactKey": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "title": "Artifact record key"
+    },
+    "evidenceKey": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "title": "Evidence record key"
+    },
+    "evidence": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "title": "Evidence"
+    },
+    "error": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "title": "Error"
+    }
+  },
+  "required": [
+    "inputIndex",
+    "processingStatus",
+    "conformanceStatus",
+    "artifactDelivered"
+  ],
+  "$id": "https://raw.githubusercontent.com/kamerozkan/peppol-ubl-invoice-generator-sample/main/dataset_record.schema.json",
+  "title": "Peppol UBL Invoice Generator dataset record",
+  "description": "One generated-invoice result row using the Actor dataset contract."
+}
