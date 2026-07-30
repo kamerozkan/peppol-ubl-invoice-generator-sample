@@ -1,0 +1,97 @@
+{
+  "actorSpecification": 1,
+  "fields": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+      "inputIndex": {
+        "type": "integer",
+        "title": "Input index"
+      },
+      "invoiceNumber": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "title": "Invoice number"
+      },
+      "processingStatus": {
+        "type": "string",
+        "enum": [
+          "SUCCEEDED",
+          "FAILED"
+        ],
+        "title": "Processing"
+      },
+      "conformanceStatus": {
+        "type": "string",
+        "enum": [
+          "ACCEPTED",
+          "REJECTED",
+          "NOT_EVALUATED"
+        ],
+        "title": "Pinned validation"
+      },
+      "artifactDelivered": {
+        "type": "boolean",
+        "title": "Artifact delivered"
+      },
+      "artifactKey": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "title": "Artifact record key"
+      },
+      "evidenceKey": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "title": "Evidence record key"
+      },
+      "evidence": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "title": "Evidence"
+      },
+      "error": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "title": "Error"
+      }
+    },
+    "required": [
+      "inputIndex",
+      "processingStatus",
+      "conformanceStatus",
+      "artifactDelivered"
+    ]
+  },
+  "views": {
+    "overview": {
+      "title": "Generated invoices",
+      "description": "Validated artifact delivery and evidence status.",
+      "transformation": {
+        "fields": [
+          "conformanceStatus",
+          "artifactDelivered",
+          "invoiceNumber",
+          "artifactKey",
+          "evidenceKey",
+          "processingStatus",
+          "error"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {}
+      }
+    }
+  }
+}
