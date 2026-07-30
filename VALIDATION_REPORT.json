@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "generatedAt": "2026-07-30",
+  "repository": "peppol-ubl-invoice-generator-sample",
+  "actor": "kamerozkan/peppol-ubl-invoice-generator",
+  "actorPublicationStatus": "PRIVATE_RELEASE_PENDING",
+  "liveActorRunUsed": false,
+  "plannedPayPerEvent": {
+    "event": "invoice-generated",
+    "priceUsd": "0.01"
+  },
+  "checks": {
+    "jsonParsing": "PASS",
+    "actorInputSchema": "PASS",
+    "actorDatasetRecordSchema": "PASS",
+    "localGeneration": "PASS",
+    "pinnedOfflineTechnicalPreflight": "PASS",
+    "artifactHashAndByteCount": "PASS",
+    "examplePairCount": 3
+  },
+  "examples": [
+    {
+      "id": 1,
+      "scenario": "Standard consulting service invoice",
+      "inputFile": "01_standard_service_input.json",
+      "outputFile": "01_standard_service_output.json",
+      "localEngineOutput": true,
+      "apifyRun": false,
+      "validationStatus": "ACCEPTED",
+      "artifactSha256": "0b178b21996f9ceaec8a603e3d5d361f71c75499c8ae723c330a9cc1c31a9d4b",
+      "artifactBytes": 5361,
+      "inputSchema": "PASS",
+      "datasetRecordSchema": "PASS",
+      "artifactHash": "PASS"
+    },
+    {
+      "id": 2,
+      "scenario": "Multi-line professional services invoice",
+      "inputFile": "02_multi_line_input.json",
+      "outputFile": "02_multi_line_output.json",
+      "localEngineOutput": true,
+      "apifyRun": false,
+      "validationStatus": "ACCEPTED",
+      "artifactSha256": "cd13a994924797ffe17042516628d4269e0be0a1e4080172abb492a614009934",
+      "artifactBytes": 6036,
+      "inputSchema": "PASS",
+      "datasetRecordSchema": "PASS",
+      "artifactHash": "PASS"
+    },
+    {
+      "id": 3,
+      "scenario": "Recurring service invoice",
+      "inputFile": "03_recurring_service_input.json",
+      "outputFile": "03_recurring_service_output.json",
+      "localEngineOutput": true,
+      "apifyRun": false,
+      "validationStatus": "ACCEPTED",
+      "artifactSha256": "4ad8402e6ee2edef85131b128cc36479f65dccb2e9fd1c1d7500dbfa92a19c19",
+      "artifactBytes": 5366,
+      "inputSchema": "PASS",
+      "datasetRecordSchema": "PASS",
+      "artifactHash": "PASS"
+    }
+  ]
+}
