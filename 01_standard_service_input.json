@@ -1,0 +1,62 @@
+{
+  "invoice": {
+    "invoice_number": "INV-2026-0001",
+    "issue_date": "2026-07-29",
+    "due_date": "2026-08-28",
+    "delivery_date": "2026-07-29",
+    "currency": "EUR",
+    "invoice_type_code": "380",
+    "buyer_reference": "BUYER-REF-1001",
+    "purchase_order_reference": "PO-2026-1001",
+    "seller": {
+      "name": "Example Supplier GmbH",
+      "address": {
+        "line1": "Musterstrasse 10",
+        "city": "Berlin",
+        "postal_code": "10115",
+        "country_code": "DE"
+      },
+      "vat_id": "DE123456789",
+      "registration_id": "HRB12345",
+      "endpoint_id": "4000001123452",
+      "endpoint_scheme": "0088",
+      "email": "billing@example-supplier.test",
+      "contact_name": "Billing Team",
+      "phone": "+49 30 1234567"
+    },
+    "buyer": {
+      "name": "Example Buyer GmbH",
+      "address": {
+        "line1": "Einkaufsweg 20",
+        "city": "Hamburg",
+        "postal_code": "20095",
+        "country_code": "DE"
+      },
+      "vat_id": "DE987654321",
+      "registration_id": "HRB54321",
+      "endpoint_id": "4000001987658",
+      "endpoint_scheme": "0088",
+      "email": "accounts@example-buyer.test"
+    },
+    "lines": [
+      {
+        "id": "1",
+        "description": "Consulting services",
+        "quantity": "2",
+        "unit_code": "HUR",
+        "unit_price": "500.00",
+        "tax_rate": "19",
+        "tax_category": "S"
+      }
+    ],
+    "payment": {
+      "means_code": "30",
+      "reference": "INV-2026-0001",
+      "iban": "DE89370400440532013000",
+      "bic": "COBADEFFXXX"
+    },
+    "notes": [
+      "Generated sample for technical preflight."
+    ]
+  }
+}
