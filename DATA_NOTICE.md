@@ -2,7 +2,7 @@
 
 ## Purpose and provenance
 
-This repository is a technical sample for the release-pending
+This repository is a technical sample for the public
 [Peppol UBL Invoice Generator](https://apify.com/kamerozkan/peppol-ubl-invoice-generator) Actor.
 
 The three outputs were produced on 2026-07-30 by the local release engine from
@@ -10,9 +10,7 @@ the paired synthetic inputs, then mapped into the production dataset-row shape.
 Every generated artifact passed the complete pinned local validation stack:
 UBL 2.1 XML Schema plus the pinned CEN EN 16931 and Peppol BIS Billing 3.0.20 Schematron stylesheets.
 
-No example came from an Apify run. No Actor was published, no network or tax
-platform received an invoice, no customer data was processed, and no billing
-event occurred. `sampleProvenance` is a repository-only annotation, not a field
+The examples came from local fixture generation on July 30, 2026. During that fixture exercise no Actor was published, no network or tax platform received an invoice, no customer data was processed and no billing event occurred. The Actor is now publicly listed; the historical fixtures are still local examples. `sampleProvenance` is a repository-only annotation, not a field
 normally added by the Actor.
 
 ## Artifact evidence
@@ -66,3 +64,7 @@ validator engines, specifications, third-party examples, names, or marks.
 The Actor and repository are independent products and are not affiliated with
 or endorsed by any authority, standards body, validator vendor, recipient, or
 network.
+
+## Listing update on September 30, 2026
+
+The Store title, description and search metadata were checked against the owned Actor and synchronized with this repository. This documentation update does not alter executable code, input or output schemas, recorded test outputs, artifact hashes, billing or runtime builds. Existing examples retain their original dates and validation limits. A public listing is not evidence of successful output, network acceptance or an achieved search ranking.

@@ -1,0 +1,15 @@
+{
+  "id": "0UMPbx78rxzmUoath",
+  "name": "peppol-ubl-invoice-generator",
+  "title": "Peppol UBL Invoice Generator",
+  "description": "Peppol UBL invoice generator for structured JSON inputs. Generate BIS Billing invoice XML and check it against the bundled EN 16931 and Peppol rule profiles before file delivery. Inspect pinned rule versions for your workflow; Peppol network transport is not included.",
+  "seoTitle": "Peppol UBL Invoice Generator - JSON to XML API",
+  "seoDescription": "Generate Peppol BIS Billing UBL invoice XML from structured JSON. Apply pinned EN 16931 and Peppol checks before delivery; network submission is separate.",
+  "isPublic": true,
+  "url": "https://apify.com/kamerozkan/peppol-ubl-invoice-generator",
+  "checkedAt": "2026-09-30",
+  "changeScope": "listing metadata and sample documentation only",
+  "runtimeChanged": false,
+  "schemasChanged": false,
+  "examplesRegenerated": false
+}
