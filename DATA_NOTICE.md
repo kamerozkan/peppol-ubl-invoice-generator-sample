@@ -68,3 +68,27 @@ network.
 ## Listing update on September 30, 2026
 
 The Store title, description and search metadata were checked against the owned Actor and synchronized with this repository. This documentation update does not alter executable code, input or output schemas, recorded test outputs, artifact hashes, billing or runtime builds. Existing examples retain their original dates and validation limits. A public listing is not evidence of successful output, network acceptance or an achieved search ranking.
+
+## Input storage maintenance on October 4, 2026
+
+The repository input schema now matches public `latest` build `1.0.3`, verified
+on October 4, with `isSecret: true` on the JSON `invoice` object and `invoices`
+array. All deployed source hashes were verified. Python `apify==4.0.0` and
+`Actor.get_input()` support
+these secret input types, as documented by
+[Apify](https://docs.apify.com/actors/development/actor-definition/input-schema/secret-input).
+The flags concern supported Actor input storage and SDK decoding. Existing
+stored inputs were not audited, re-encrypted, or migrated here.
+
+Runtime source, dependencies, pricing, dataset schema, and the recorded output
+files were not changed by this privacy release. Generated XML/PDF artifacts,
+dataset rows, evidence, and downloads can still contain invoice data; these
+schema flags do not encrypt that delivered output or remove the need for access
+controls and retention policies.
+
+No customer inputs or encrypted payloads were copied into this repository.
+No new encrypted end-to-end Actor run was performed. The July 30 fixtures and
+validation report remain historical local-generation evidence, not output from
+the new privacy release. The
+[maintenance evidence](INPUT_PRIVACY_MAINTENANCE_2026-10-04.json) records local schema checks only;
+it adds no legal, conformance, network-acceptance, or universal privacy guarantee.

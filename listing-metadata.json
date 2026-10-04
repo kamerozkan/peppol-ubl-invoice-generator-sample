@@ -7,9 +7,49 @@
   "seoDescription": "Generate Peppol BIS Billing UBL invoice XML from structured JSON. Apply pinned EN 16931 and Peppol checks before delivery; network submission is separate.",
   "isPublic": true,
   "url": "https://apify.com/kamerozkan/peppol-ubl-invoice-generator",
-  "checkedAt": "2026-09-30",
-  "changeScope": "listing metadata and sample documentation only",
+  "checkedAt": "2026-10-04",
+  "changeScope": "sample input schema synchronized to published privacy release 1.0.3; documentation and maintenance evidence",
   "runtimeChanged": false,
-  "schemasChanged": false,
-  "examplesRegenerated": false
+  "schemasChanged": true,
+  "examplesRegenerated": false,
+  "previousListingAudit": {
+    "checkedAt": "2026-09-30",
+    "changeScope": "listing metadata and sample documentation only",
+    "runtimeChanged": false,
+    "schemasChanged": false,
+    "examplesRegenerated": false
+  },
+  "listingFieldsCheckedAt": "2026-09-30",
+  "inputSchemaChanged": true,
+  "datasetSchemaChanged": false,
+  "privacyMaintenance": {
+    "status": "RELEASE_PUBLISHED_SOURCE_VERIFIED",
+    "date": "2026-10-04",
+    "fields": [
+      "invoice",
+      "invoices"
+    ],
+    "inputStorageSecret": true,
+    "existingStoredInputsAuditedOrMigrated": false,
+    "deliveredOutputEncryptedByThisChange": false,
+    "sdkRequirement": "apify==4.0.0",
+    "schemaSha256": "9f6b16a8233e4173a965d452e2d94ee76d335e09f3bed190b65198eb3f1d1e37",
+    "evidenceFile": "INPUT_PRIVACY_MAINTENANCE_2026-10-04.json",
+    "newEncryptedEndToEndRunPerformed": false,
+    "release": {
+      "buildId": "Sgvote8yVJ5cOLIse",
+      "buildNumber": "1.0.3",
+      "buildStatus": "SUCCEEDED",
+      "publicLatestVerified": true,
+      "allSourceHashesVerified": true,
+      "verifiedAtUtc": "2026-10-04T00:12:18.620764+00:00",
+      "inputSchemaSha256": "9f6b16a8233e4173a965d452e2d94ee76d335e09f3bed190b65198eb3f1d1e37",
+      "secretInputFields": [
+        "invoice",
+        "invoices"
+      ],
+      "newActorRuns": 0,
+      "freshSourceOutputVerified": false
+    }
+  }
 }

@@ -1,358 +1,2050 @@
 {
+  "$schema": "https://apify.com/schemas/v1/input.json",
   "schemaVersion": 1,
   "title": "Peppol UBL Invoice Generator",
-  "description": "Turn structured JSON into Peppol BIS Billing 3.0.20 UBL, then run UBL Schema, EN16931, and Peppol business-rule validation.",
+  "description": "Generate Peppol BIS Billing UBL from strict JSON and pass both the active 3.0.20-hotfix and announced 3.0.21 rule gates.",
   "type": "object",
   "additionalProperties": false,
   "properties": {
     "invoice": {
-      "type": "object",
+      "isSecret": true,
       "additionalProperties": false,
-      "required": [
-        "invoice_number",
-        "issue_date",
-        "due_date",
-        "seller",
-        "buyer",
-        "lines"
-      ],
       "properties": {
         "invoice_number": {
-          "type": "string",
+          "maxLength": 60,
           "minLength": 1,
-          "maxLength": 60
+          "title": "Invoice Number",
+          "type": "string",
+          "description": "Invoice Number used to generate and validate the invoice."
+        },
+        "document_kind": {
+          "default": "invoice",
+          "enum": [
+            "invoice",
+            "credit_note"
+          ],
+          "title": "Document Kind",
+          "type": "string",
+          "description": "Document Kind used to generate and validate the invoice."
         },
         "issue_date": {
+          "title": "Issue Date",
           "type": "string",
-          "format": "date"
+          "description": "Issue Date used to generate and validate the invoice.",
+          "editor": "datepicker",
+          "dateType": "absolute"
         },
         "due_date": {
           "type": "string",
-          "format": "date"
+          "title": "Due Date",
+          "nullable": true,
+          "description": "Due Date used to generate and validate the invoice.",
+          "editor": "datepicker",
+          "dateType": "absolute"
+        },
+        "tax_point_date": {
+          "type": "string",
+          "title": "Tax Point Date",
+          "nullable": true,
+          "description": "Tax Point Date used to generate and validate the invoice.",
+          "editor": "datepicker",
+          "dateType": "absolute"
+        },
+        "tax_point_date_code": {
+          "maxLength": 35,
+          "minLength": 1,
+          "type": "string",
+          "title": "Tax Point Date Code",
+          "nullable": true,
+          "description": "Tax Point Date Code used to generate and validate the invoice."
         },
         "delivery_date": {
           "type": "string",
-          "format": "date",
-          "description": "Actual delivery or service date when known."
+          "title": "Delivery Date",
+          "nullable": true,
+          "description": "Delivery Date used to generate and validate the invoice.",
+          "editor": "datepicker",
+          "dateType": "absolute"
+        },
+        "invoice_period": {
+          "additionalProperties": false,
+          "properties": {
+            "start_date": {
+              "type": "string",
+              "title": "Start Date",
+              "nullable": true,
+              "description": "Start Date used to generate and validate the invoice.",
+              "editor": "datepicker",
+              "dateType": "absolute"
+            },
+            "end_date": {
+              "type": "string",
+              "title": "End Date",
+              "nullable": true,
+              "description": "End Date used to generate and validate the invoice.",
+              "editor": "datepicker",
+              "dateType": "absolute"
+            },
+            "description_code": {
+              "maxLength": 35,
+              "minLength": 1,
+              "type": "string",
+              "title": "Description Code",
+              "nullable": true,
+              "description": "Description Code used to generate and validate the invoice."
+            }
+          },
+          "title": "Period",
+          "type": "object",
+          "nullable": true,
+          "description": "Period used to generate and validate the invoice."
+        },
+        "delivery_period": {
+          "additionalProperties": false,
+          "properties": {
+            "start_date": {
+              "type": "string",
+              "title": "Start Date",
+              "nullable": true,
+              "description": "Start Date used to generate and validate the invoice.",
+              "editor": "datepicker",
+              "dateType": "absolute"
+            },
+            "end_date": {
+              "type": "string",
+              "title": "End Date",
+              "nullable": true,
+              "description": "End Date used to generate and validate the invoice.",
+              "editor": "datepicker",
+              "dateType": "absolute"
+            },
+            "description_code": {
+              "maxLength": 35,
+              "minLength": 1,
+              "type": "string",
+              "title": "Description Code",
+              "nullable": true,
+              "description": "Description Code used to generate and validate the invoice."
+            }
+          },
+          "title": "Period",
+          "type": "object",
+          "nullable": true,
+          "description": "Period used to generate and validate the invoice."
         },
         "currency": {
+          "default": "EUR",
+          "maxLength": 3,
+          "minLength": 3,
+          "title": "Currency",
           "type": "string",
-          "pattern": "^[A-Za-z]{3}$",
-          "default": "EUR"
+          "description": "Currency used to generate and validate the invoice."
+        },
+        "tax_currency": {
+          "maxLength": 3,
+          "minLength": 3,
+          "type": "string",
+          "title": "Tax Currency",
+          "nullable": true,
+          "description": "Tax Currency used to generate and validate the invoice."
+        },
+        "tax_currency_tax_amount": {
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+          "type": "string",
+          "title": "Tax Currency Tax Amount",
+          "nullable": true,
+          "description": "Tax Currency Tax Amount used to generate and validate the invoice."
         },
         "invoice_type_code": {
+          "default": "380",
+          "maxLength": 3,
+          "minLength": 2,
+          "title": "Invoice Type Code",
           "type": "string",
-          "enum": [
-            "380"
-          ],
-          "default": "380"
+          "description": "Invoice Type Code used to generate and validate the invoice."
         },
         "buyer_reference": {
+          "maxLength": 100,
           "type": "string",
-          "minLength": 1,
-          "maxLength": 100
+          "title": "Buyer Reference",
+          "nullable": true,
+          "description": "Buyer Reference used to generate and validate the invoice."
         },
         "purchase_order_reference": {
+          "maxLength": 100,
           "type": "string",
-          "minLength": 1,
-          "maxLength": 100
+          "title": "Purchase Order Reference",
+          "nullable": true,
+          "description": "Purchase Order Reference used to generate and validate the invoice."
+        },
+        "sales_order_reference": {
+          "maxLength": 100,
+          "type": "string",
+          "title": "Sales Order Reference",
+          "nullable": true,
+          "description": "Sales Order Reference used to generate and validate the invoice."
+        },
+        "contract_reference": {
+          "maxLength": 100,
+          "type": "string",
+          "title": "Contract Reference",
+          "nullable": true,
+          "description": "Contract Reference used to generate and validate the invoice."
+        },
+        "project_reference": {
+          "maxLength": 100,
+          "type": "string",
+          "title": "Project Reference",
+          "nullable": true,
+          "description": "Project Reference used to generate and validate the invoice."
+        },
+        "project_name": {
+          "maxLength": 200,
+          "type": "string",
+          "title": "Project Name",
+          "nullable": true,
+          "description": "Project Name used to generate and validate the invoice."
+        },
+        "tender_reference": {
+          "maxLength": 100,
+          "type": "string",
+          "title": "Tender Reference",
+          "nullable": true,
+          "description": "Tender Reference used to generate and validate the invoice."
+        },
+        "receiving_advice_reference": {
+          "maxLength": 100,
+          "type": "string",
+          "title": "Receiving Advice Reference",
+          "nullable": true,
+          "description": "Receiving Advice Reference used to generate and validate the invoice."
+        },
+        "despatch_advice_reference": {
+          "maxLength": 100,
+          "type": "string",
+          "title": "Despatch Advice Reference",
+          "nullable": true,
+          "description": "Despatch Advice Reference used to generate and validate the invoice."
+        },
+        "accounting_cost": {
+          "maxLength": 200,
+          "type": "string",
+          "title": "Accounting Cost",
+          "nullable": true,
+          "description": "Accounting Cost used to generate and validate the invoice."
         },
         "seller": {
-          "type": "object",
           "additionalProperties": false,
-          "required": [
-            "name",
-            "address"
-          ],
           "properties": {
             "name": {
-              "type": "string",
+              "maxLength": 200,
               "minLength": 1,
-              "maxLength": 200
+              "title": "Name",
+              "type": "string",
+              "description": "Name used to generate and validate the invoice."
             },
             "address": {
-              "type": "object",
               "additionalProperties": false,
+              "properties": {
+                "line1": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "title": "Line1",
+                  "type": "string",
+                  "description": "Line1 used to generate and validate the invoice."
+                },
+                "line2": {
+                  "maxLength": 100,
+                  "type": "string",
+                  "title": "Line2",
+                  "nullable": true,
+                  "description": "Line2 used to generate and validate the invoice."
+                },
+                "line3": {
+                  "maxLength": 100,
+                  "type": "string",
+                  "title": "Line3",
+                  "nullable": true,
+                  "description": "Line3 used to generate and validate the invoice."
+                },
+                "city": {
+                  "maxLength": 60,
+                  "minLength": 1,
+                  "title": "City",
+                  "type": "string",
+                  "description": "City used to generate and validate the invoice."
+                },
+                "postal_code": {
+                  "maxLength": 20,
+                  "minLength": 1,
+                  "title": "Postal Code",
+                  "type": "string",
+                  "description": "Postal Code used to generate and validate the invoice."
+                },
+                "country_code": {
+                  "maxLength": 2,
+                  "minLength": 2,
+                  "title": "Country Code",
+                  "type": "string",
+                  "description": "Country Code used to generate and validate the invoice."
+                },
+                "region": {
+                  "maxLength": 60,
+                  "type": "string",
+                  "title": "Region",
+                  "nullable": true,
+                  "description": "Region used to generate and validate the invoice."
+                }
+              },
               "required": [
                 "line1",
                 "city",
                 "postal_code",
                 "country_code"
               ],
-              "properties": {
-                "line1": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 100
-                },
-                "line2": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 100
-                },
-                "city": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 60
-                },
-                "postal_code": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 20
-                },
-                "country_code": {
-                  "type": "string",
-                  "pattern": "^[A-Za-z]{2}$",
-                  "description": "ISO 3166-1 alpha-2 country code."
-                },
-                "region": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 60
-                }
-              }
+              "title": "Address",
+              "type": "object",
+              "description": "Address used to generate and validate the invoice."
+            },
+            "trading_name": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string",
+              "title": "Trading Name",
+              "nullable": true,
+              "description": "Trading Name used to generate and validate the invoice."
             },
             "vat_id": {
-              "type": "string",
+              "maxLength": 30,
               "minLength": 2,
-              "maxLength": 30
+              "type": "string",
+              "title": "Vat Id",
+              "nullable": true,
+              "description": "Vat Id used to generate and validate the invoice."
             },
             "tax_id": {
-              "type": "string",
+              "maxLength": 40,
               "minLength": 2,
-              "maxLength": 40
+              "type": "string",
+              "title": "Tax Id",
+              "nullable": true,
+              "description": "Tax Id used to generate and validate the invoice."
             },
             "registration_id": {
-              "type": "string",
+              "maxLength": 60,
               "minLength": 1,
-              "maxLength": 60
+              "type": "string",
+              "title": "Registration Id",
+              "nullable": true,
+              "description": "Registration Id used to generate and validate the invoice."
+            },
+            "registration_scheme": {
+              "maxLength": 35,
+              "minLength": 1,
+              "type": "string",
+              "title": "Registration Scheme",
+              "nullable": true,
+              "description": "Registration Scheme used to generate and validate the invoice."
+            },
+            "additional_identifiers": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "value": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "title": "Value",
+                    "type": "string",
+                    "description": "Value used to generate and validate the invoice."
+                  },
+                  "scheme_id": {
+                    "maxLength": 35,
+                    "minLength": 1,
+                    "type": "string",
+                    "title": "Scheme Id",
+                    "nullable": true,
+                    "description": "Scheme Id used to generate and validate the invoice."
+                  }
+                },
+                "required": [
+                  "value"
+                ],
+                "type": "object"
+              },
+              "maxItems": 20,
+              "title": "Additional Identifiers",
+              "type": "array",
+              "description": "Additional Identifiers used to generate and validate the invoice."
             },
             "endpoint_id": {
-              "type": "string",
+              "maxLength": 200,
               "minLength": 1,
-              "maxLength": 80
+              "type": "string",
+              "title": "Endpoint Id",
+              "nullable": true,
+              "description": "Endpoint Id used to generate and validate the invoice."
             },
             "endpoint_scheme": {
-              "type": "string",
+              "maxLength": 35,
               "minLength": 1,
-              "maxLength": 10
+              "type": "string",
+              "title": "Endpoint Scheme",
+              "nullable": true,
+              "description": "Endpoint Scheme used to generate and validate the invoice."
+            },
+            "legal_information": {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string",
+              "title": "Legal Information",
+              "nullable": true,
+              "description": "Legal Information used to generate and validate the invoice."
             },
             "contact_name": {
-              "type": "string",
+              "maxLength": 100,
               "minLength": 1,
-              "maxLength": 100
+              "type": "string",
+              "title": "Contact Name",
+              "nullable": true,
+              "description": "Contact Name used to generate and validate the invoice."
+            },
+            "contact_department": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string",
+              "title": "Contact Department",
+              "nullable": true,
+              "description": "Contact Department used to generate and validate the invoice."
             },
             "phone": {
-              "type": "string",
+              "maxLength": 50,
               "minLength": 3,
-              "maxLength": 50
+              "type": "string",
+              "title": "Phone",
+              "nullable": true,
+              "description": "Phone used to generate and validate the invoice."
             },
             "email": {
-              "type": "string",
+              "maxLength": 254,
               "minLength": 3,
-              "maxLength": 254
+              "type": "string",
+              "title": "Email",
+              "nullable": true,
+              "description": "Email used to generate and validate the invoice."
             }
           },
-          "description": "Supply at least one of vat_id, tax_id, or registration_id."
+          "required": [
+            "name",
+            "address"
+          ],
+          "title": "Party",
+          "type": "object",
+          "description": "Party used to generate and validate the invoice."
         },
         "buyer": {
-          "type": "object",
           "additionalProperties": false,
-          "required": [
-            "name",
-            "address"
-          ],
           "properties": {
             "name": {
-              "type": "string",
+              "maxLength": 200,
               "minLength": 1,
-              "maxLength": 200
+              "title": "Name",
+              "type": "string",
+              "description": "Name used to generate and validate the invoice."
             },
             "address": {
-              "type": "object",
               "additionalProperties": false,
+              "properties": {
+                "line1": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "title": "Line1",
+                  "type": "string",
+                  "description": "Line1 used to generate and validate the invoice."
+                },
+                "line2": {
+                  "maxLength": 100,
+                  "type": "string",
+                  "title": "Line2",
+                  "nullable": true,
+                  "description": "Line2 used to generate and validate the invoice."
+                },
+                "line3": {
+                  "maxLength": 100,
+                  "type": "string",
+                  "title": "Line3",
+                  "nullable": true,
+                  "description": "Line3 used to generate and validate the invoice."
+                },
+                "city": {
+                  "maxLength": 60,
+                  "minLength": 1,
+                  "title": "City",
+                  "type": "string",
+                  "description": "City used to generate and validate the invoice."
+                },
+                "postal_code": {
+                  "maxLength": 20,
+                  "minLength": 1,
+                  "title": "Postal Code",
+                  "type": "string",
+                  "description": "Postal Code used to generate and validate the invoice."
+                },
+                "country_code": {
+                  "maxLength": 2,
+                  "minLength": 2,
+                  "title": "Country Code",
+                  "type": "string",
+                  "description": "Country Code used to generate and validate the invoice."
+                },
+                "region": {
+                  "maxLength": 60,
+                  "type": "string",
+                  "title": "Region",
+                  "nullable": true,
+                  "description": "Region used to generate and validate the invoice."
+                }
+              },
               "required": [
                 "line1",
                 "city",
                 "postal_code",
                 "country_code"
               ],
-              "properties": {
-                "line1": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 100
-                },
-                "line2": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 100
-                },
-                "city": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 60
-                },
-                "postal_code": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 20
-                },
-                "country_code": {
-                  "type": "string",
-                  "pattern": "^[A-Za-z]{2}$",
-                  "description": "ISO 3166-1 alpha-2 country code."
-                },
-                "region": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 60
-                }
-              }
+              "title": "Address",
+              "type": "object",
+              "description": "Address used to generate and validate the invoice."
+            },
+            "trading_name": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string",
+              "title": "Trading Name",
+              "nullable": true,
+              "description": "Trading Name used to generate and validate the invoice."
             },
             "vat_id": {
-              "type": "string",
+              "maxLength": 30,
               "minLength": 2,
-              "maxLength": 30
+              "type": "string",
+              "title": "Vat Id",
+              "nullable": true,
+              "description": "Vat Id used to generate and validate the invoice."
             },
             "tax_id": {
-              "type": "string",
+              "maxLength": 40,
               "minLength": 2,
-              "maxLength": 40
+              "type": "string",
+              "title": "Tax Id",
+              "nullable": true,
+              "description": "Tax Id used to generate and validate the invoice."
             },
             "registration_id": {
-              "type": "string",
+              "maxLength": 60,
               "minLength": 1,
-              "maxLength": 60
+              "type": "string",
+              "title": "Registration Id",
+              "nullable": true,
+              "description": "Registration Id used to generate and validate the invoice."
+            },
+            "registration_scheme": {
+              "maxLength": 35,
+              "minLength": 1,
+              "type": "string",
+              "title": "Registration Scheme",
+              "nullable": true,
+              "description": "Registration Scheme used to generate and validate the invoice."
+            },
+            "additional_identifiers": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "value": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "title": "Value",
+                    "type": "string",
+                    "description": "Value used to generate and validate the invoice."
+                  },
+                  "scheme_id": {
+                    "maxLength": 35,
+                    "minLength": 1,
+                    "type": "string",
+                    "title": "Scheme Id",
+                    "nullable": true,
+                    "description": "Scheme Id used to generate and validate the invoice."
+                  }
+                },
+                "required": [
+                  "value"
+                ],
+                "type": "object"
+              },
+              "maxItems": 20,
+              "title": "Additional Identifiers",
+              "type": "array",
+              "description": "Additional Identifiers used to generate and validate the invoice."
             },
             "endpoint_id": {
-              "type": "string",
+              "maxLength": 200,
               "minLength": 1,
-              "maxLength": 80
+              "type": "string",
+              "title": "Endpoint Id",
+              "nullable": true,
+              "description": "Endpoint Id used to generate and validate the invoice."
             },
             "endpoint_scheme": {
-              "type": "string",
+              "maxLength": 35,
               "minLength": 1,
-              "maxLength": 10
+              "type": "string",
+              "title": "Endpoint Scheme",
+              "nullable": true,
+              "description": "Endpoint Scheme used to generate and validate the invoice."
+            },
+            "legal_information": {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string",
+              "title": "Legal Information",
+              "nullable": true,
+              "description": "Legal Information used to generate and validate the invoice."
             },
             "contact_name": {
-              "type": "string",
+              "maxLength": 100,
               "minLength": 1,
-              "maxLength": 100
+              "type": "string",
+              "title": "Contact Name",
+              "nullable": true,
+              "description": "Contact Name used to generate and validate the invoice."
+            },
+            "contact_department": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string",
+              "title": "Contact Department",
+              "nullable": true,
+              "description": "Contact Department used to generate and validate the invoice."
             },
             "phone": {
-              "type": "string",
+              "maxLength": 50,
               "minLength": 3,
-              "maxLength": 50
+              "type": "string",
+              "title": "Phone",
+              "nullable": true,
+              "description": "Phone used to generate and validate the invoice."
             },
             "email": {
-              "type": "string",
+              "maxLength": 254,
               "minLength": 3,
-              "maxLength": 254
+              "type": "string",
+              "title": "Email",
+              "nullable": true,
+              "description": "Email used to generate and validate the invoice."
             }
           },
-          "description": "Supply at least one of vat_id, tax_id, or registration_id."
+          "required": [
+            "name",
+            "address"
+          ],
+          "title": "Party",
+          "type": "object",
+          "description": "Party used to generate and validate the invoice."
+        },
+        "payee": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Name",
+              "type": "string",
+              "description": "Name used to generate and validate the invoice."
+            },
+            "address": {
+              "additionalProperties": false,
+              "properties": {
+                "line1": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "title": "Line1",
+                  "type": "string",
+                  "description": "Line1 used to generate and validate the invoice."
+                },
+                "line2": {
+                  "maxLength": 100,
+                  "type": "string",
+                  "title": "Line2",
+                  "nullable": true,
+                  "description": "Line2 used to generate and validate the invoice."
+                },
+                "line3": {
+                  "maxLength": 100,
+                  "type": "string",
+                  "title": "Line3",
+                  "nullable": true,
+                  "description": "Line3 used to generate and validate the invoice."
+                },
+                "city": {
+                  "maxLength": 60,
+                  "minLength": 1,
+                  "title": "City",
+                  "type": "string",
+                  "description": "City used to generate and validate the invoice."
+                },
+                "postal_code": {
+                  "maxLength": 20,
+                  "minLength": 1,
+                  "title": "Postal Code",
+                  "type": "string",
+                  "description": "Postal Code used to generate and validate the invoice."
+                },
+                "country_code": {
+                  "maxLength": 2,
+                  "minLength": 2,
+                  "title": "Country Code",
+                  "type": "string",
+                  "description": "Country Code used to generate and validate the invoice."
+                },
+                "region": {
+                  "maxLength": 60,
+                  "type": "string",
+                  "title": "Region",
+                  "nullable": true,
+                  "description": "Region used to generate and validate the invoice."
+                }
+              },
+              "required": [
+                "line1",
+                "city",
+                "postal_code",
+                "country_code"
+              ],
+              "title": "Address",
+              "type": "object",
+              "description": "Address used to generate and validate the invoice."
+            },
+            "trading_name": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string",
+              "title": "Trading Name",
+              "nullable": true,
+              "description": "Trading Name used to generate and validate the invoice."
+            },
+            "vat_id": {
+              "maxLength": 30,
+              "minLength": 2,
+              "type": "string",
+              "title": "Vat Id",
+              "nullable": true,
+              "description": "Vat Id used to generate and validate the invoice."
+            },
+            "tax_id": {
+              "maxLength": 40,
+              "minLength": 2,
+              "type": "string",
+              "title": "Tax Id",
+              "nullable": true,
+              "description": "Tax Id used to generate and validate the invoice."
+            },
+            "registration_id": {
+              "maxLength": 60,
+              "minLength": 1,
+              "type": "string",
+              "title": "Registration Id",
+              "nullable": true,
+              "description": "Registration Id used to generate and validate the invoice."
+            },
+            "registration_scheme": {
+              "maxLength": 35,
+              "minLength": 1,
+              "type": "string",
+              "title": "Registration Scheme",
+              "nullable": true,
+              "description": "Registration Scheme used to generate and validate the invoice."
+            },
+            "additional_identifiers": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "value": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "title": "Value",
+                    "type": "string",
+                    "description": "Value used to generate and validate the invoice."
+                  },
+                  "scheme_id": {
+                    "maxLength": 35,
+                    "minLength": 1,
+                    "type": "string",
+                    "title": "Scheme Id",
+                    "nullable": true,
+                    "description": "Scheme Id used to generate and validate the invoice."
+                  }
+                },
+                "required": [
+                  "value"
+                ],
+                "type": "object"
+              },
+              "maxItems": 20,
+              "title": "Additional Identifiers",
+              "type": "array",
+              "description": "Additional Identifiers used to generate and validate the invoice."
+            },
+            "endpoint_id": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string",
+              "title": "Endpoint Id",
+              "nullable": true,
+              "description": "Endpoint Id used to generate and validate the invoice."
+            },
+            "endpoint_scheme": {
+              "maxLength": 35,
+              "minLength": 1,
+              "type": "string",
+              "title": "Endpoint Scheme",
+              "nullable": true,
+              "description": "Endpoint Scheme used to generate and validate the invoice."
+            },
+            "legal_information": {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string",
+              "title": "Legal Information",
+              "nullable": true,
+              "description": "Legal Information used to generate and validate the invoice."
+            },
+            "contact_name": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string",
+              "title": "Contact Name",
+              "nullable": true,
+              "description": "Contact Name used to generate and validate the invoice."
+            },
+            "contact_department": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string",
+              "title": "Contact Department",
+              "nullable": true,
+              "description": "Contact Department used to generate and validate the invoice."
+            },
+            "phone": {
+              "maxLength": 50,
+              "minLength": 3,
+              "type": "string",
+              "title": "Phone",
+              "nullable": true,
+              "description": "Phone used to generate and validate the invoice."
+            },
+            "email": {
+              "maxLength": 254,
+              "minLength": 3,
+              "type": "string",
+              "title": "Email",
+              "nullable": true,
+              "description": "Email used to generate and validate the invoice."
+            }
+          },
+          "required": [
+            "name",
+            "address"
+          ],
+          "title": "Party",
+          "type": "object",
+          "nullable": true,
+          "description": "Party used to generate and validate the invoice."
+        },
+        "seller_tax_representative": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Name",
+              "type": "string",
+              "description": "Name used to generate and validate the invoice."
+            },
+            "address": {
+              "additionalProperties": false,
+              "properties": {
+                "line1": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "title": "Line1",
+                  "type": "string",
+                  "description": "Line1 used to generate and validate the invoice."
+                },
+                "line2": {
+                  "maxLength": 100,
+                  "type": "string",
+                  "title": "Line2",
+                  "nullable": true,
+                  "description": "Line2 used to generate and validate the invoice."
+                },
+                "line3": {
+                  "maxLength": 100,
+                  "type": "string",
+                  "title": "Line3",
+                  "nullable": true,
+                  "description": "Line3 used to generate and validate the invoice."
+                },
+                "city": {
+                  "maxLength": 60,
+                  "minLength": 1,
+                  "title": "City",
+                  "type": "string",
+                  "description": "City used to generate and validate the invoice."
+                },
+                "postal_code": {
+                  "maxLength": 20,
+                  "minLength": 1,
+                  "title": "Postal Code",
+                  "type": "string",
+                  "description": "Postal Code used to generate and validate the invoice."
+                },
+                "country_code": {
+                  "maxLength": 2,
+                  "minLength": 2,
+                  "title": "Country Code",
+                  "type": "string",
+                  "description": "Country Code used to generate and validate the invoice."
+                },
+                "region": {
+                  "maxLength": 60,
+                  "type": "string",
+                  "title": "Region",
+                  "nullable": true,
+                  "description": "Region used to generate and validate the invoice."
+                }
+              },
+              "required": [
+                "line1",
+                "city",
+                "postal_code",
+                "country_code"
+              ],
+              "title": "Address",
+              "type": "object",
+              "description": "Address used to generate and validate the invoice."
+            },
+            "trading_name": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string",
+              "title": "Trading Name",
+              "nullable": true,
+              "description": "Trading Name used to generate and validate the invoice."
+            },
+            "vat_id": {
+              "maxLength": 30,
+              "minLength": 2,
+              "type": "string",
+              "title": "Vat Id",
+              "nullable": true,
+              "description": "Vat Id used to generate and validate the invoice."
+            },
+            "tax_id": {
+              "maxLength": 40,
+              "minLength": 2,
+              "type": "string",
+              "title": "Tax Id",
+              "nullable": true,
+              "description": "Tax Id used to generate and validate the invoice."
+            },
+            "registration_id": {
+              "maxLength": 60,
+              "minLength": 1,
+              "type": "string",
+              "title": "Registration Id",
+              "nullable": true,
+              "description": "Registration Id used to generate and validate the invoice."
+            },
+            "registration_scheme": {
+              "maxLength": 35,
+              "minLength": 1,
+              "type": "string",
+              "title": "Registration Scheme",
+              "nullable": true,
+              "description": "Registration Scheme used to generate and validate the invoice."
+            },
+            "additional_identifiers": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "value": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "title": "Value",
+                    "type": "string",
+                    "description": "Value used to generate and validate the invoice."
+                  },
+                  "scheme_id": {
+                    "maxLength": 35,
+                    "minLength": 1,
+                    "type": "string",
+                    "title": "Scheme Id",
+                    "nullable": true,
+                    "description": "Scheme Id used to generate and validate the invoice."
+                  }
+                },
+                "required": [
+                  "value"
+                ],
+                "type": "object"
+              },
+              "maxItems": 20,
+              "title": "Additional Identifiers",
+              "type": "array",
+              "description": "Additional Identifiers used to generate and validate the invoice."
+            },
+            "endpoint_id": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string",
+              "title": "Endpoint Id",
+              "nullable": true,
+              "description": "Endpoint Id used to generate and validate the invoice."
+            },
+            "endpoint_scheme": {
+              "maxLength": 35,
+              "minLength": 1,
+              "type": "string",
+              "title": "Endpoint Scheme",
+              "nullable": true,
+              "description": "Endpoint Scheme used to generate and validate the invoice."
+            },
+            "legal_information": {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string",
+              "title": "Legal Information",
+              "nullable": true,
+              "description": "Legal Information used to generate and validate the invoice."
+            },
+            "contact_name": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string",
+              "title": "Contact Name",
+              "nullable": true,
+              "description": "Contact Name used to generate and validate the invoice."
+            },
+            "contact_department": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string",
+              "title": "Contact Department",
+              "nullable": true,
+              "description": "Contact Department used to generate and validate the invoice."
+            },
+            "phone": {
+              "maxLength": 50,
+              "minLength": 3,
+              "type": "string",
+              "title": "Phone",
+              "nullable": true,
+              "description": "Phone used to generate and validate the invoice."
+            },
+            "email": {
+              "maxLength": 254,
+              "minLength": 3,
+              "type": "string",
+              "title": "Email",
+              "nullable": true,
+              "description": "Email used to generate and validate the invoice."
+            }
+          },
+          "required": [
+            "name",
+            "address"
+          ],
+          "title": "Party",
+          "type": "object",
+          "nullable": true,
+          "description": "Party used to generate and validate the invoice."
+        },
+        "delivery_address": {
+          "additionalProperties": false,
+          "properties": {
+            "line1": {
+              "maxLength": 100,
+              "minLength": 1,
+              "title": "Line1",
+              "type": "string",
+              "description": "Line1 used to generate and validate the invoice."
+            },
+            "line2": {
+              "maxLength": 100,
+              "type": "string",
+              "title": "Line2",
+              "nullable": true,
+              "description": "Line2 used to generate and validate the invoice."
+            },
+            "line3": {
+              "maxLength": 100,
+              "type": "string",
+              "title": "Line3",
+              "nullable": true,
+              "description": "Line3 used to generate and validate the invoice."
+            },
+            "city": {
+              "maxLength": 60,
+              "minLength": 1,
+              "title": "City",
+              "type": "string",
+              "description": "City used to generate and validate the invoice."
+            },
+            "postal_code": {
+              "maxLength": 20,
+              "minLength": 1,
+              "title": "Postal Code",
+              "type": "string",
+              "description": "Postal Code used to generate and validate the invoice."
+            },
+            "country_code": {
+              "maxLength": 2,
+              "minLength": 2,
+              "title": "Country Code",
+              "type": "string",
+              "description": "Country Code used to generate and validate the invoice."
+            },
+            "region": {
+              "maxLength": 60,
+              "type": "string",
+              "title": "Region",
+              "nullable": true,
+              "description": "Region used to generate and validate the invoice."
+            }
+          },
+          "required": [
+            "line1",
+            "city",
+            "postal_code",
+            "country_code"
+          ],
+          "title": "Address",
+          "type": "object",
+          "nullable": true,
+          "description": "Address used to generate and validate the invoice."
+        },
+        "delivery_location_id": {
+          "additionalProperties": false,
+          "properties": {
+            "value": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Value",
+              "type": "string",
+              "description": "Value used to generate and validate the invoice."
+            },
+            "scheme_id": {
+              "maxLength": 35,
+              "minLength": 1,
+              "type": "string",
+              "title": "Scheme Id",
+              "nullable": true,
+              "description": "Scheme Id used to generate and validate the invoice."
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "Identifier",
+          "type": "object",
+          "nullable": true,
+          "description": "Identifier used to generate and validate the invoice."
+        },
+        "delivery_party_name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string",
+          "title": "Delivery Party Name",
+          "nullable": true,
+          "description": "Delivery Party Name used to generate and validate the invoice."
         },
         "lines": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 1000,
           "items": {
-            "type": "object",
             "additionalProperties": false,
+            "properties": {
+              "id": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Id",
+                "nullable": true,
+                "description": "Id used to generate and validate the invoice."
+              },
+              "name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string",
+                "title": "Name",
+                "nullable": true,
+                "description": "Name used to generate and validate the invoice."
+              },
+              "description": {
+                "maxLength": 1000,
+                "minLength": 1,
+                "title": "Description",
+                "type": "string",
+                "description": "Description used to generate and validate the invoice."
+              },
+              "note": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string",
+                "title": "Note",
+                "nullable": true,
+                "description": "Note used to generate and validate the invoice."
+              },
+              "quantity": {
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                "type": "string",
+                "title": "Quantity",
+                "description": "Quantity used to generate and validate the invoice."
+              },
+              "unit_code": {
+                "default": "C62",
+                "maxLength": 3,
+                "minLength": 2,
+                "title": "Unit Code",
+                "type": "string",
+                "description": "Unit Code used to generate and validate the invoice."
+              },
+              "unit_price": {
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                "type": "string",
+                "title": "Unit Price",
+                "description": "Unit Price used to generate and validate the invoice."
+              },
+              "price_base_quantity": {
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                "type": "string",
+                "default": "1",
+                "title": "Price Base Quantity",
+                "description": "Price Base Quantity used to generate and validate the invoice."
+              },
+              "price_base_unit_code": {
+                "maxLength": 3,
+                "minLength": 2,
+                "type": "string",
+                "title": "Price Base Unit Code",
+                "nullable": true,
+                "description": "Price Base Unit Code used to generate and validate the invoice."
+              },
+              "gross_unit_price": {
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                "type": "string",
+                "title": "Gross Unit Price",
+                "nullable": true,
+                "description": "Gross Unit Price used to generate and validate the invoice."
+              },
+              "gross_price_discount": {
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                "type": "string",
+                "title": "Gross Price Discount",
+                "nullable": true,
+                "description": "Gross Price Discount used to generate and validate the invoice."
+              },
+              "tax_rate": {
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                "type": "string",
+                "title": "Tax Rate",
+                "description": "Tax Rate used to generate and validate the invoice."
+              },
+              "tax_category": {
+                "default": "S",
+                "maxLength": 3,
+                "minLength": 1,
+                "title": "Tax Category",
+                "type": "string",
+                "description": "Tax Category used to generate and validate the invoice."
+              },
+              "tax_exemption_reason": {
+                "maxLength": 500,
+                "type": "string",
+                "title": "Tax Exemption Reason",
+                "nullable": true,
+                "description": "Tax Exemption Reason used to generate and validate the invoice."
+              },
+              "tax_exemption_reason_code": {
+                "maxLength": 35,
+                "type": "string",
+                "title": "Tax Exemption Reason Code",
+                "nullable": true,
+                "description": "Tax Exemption Reason Code used to generate and validate the invoice."
+              },
+              "allowances_charges": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "is_charge": {
+                      "title": "Is Charge",
+                      "type": "boolean",
+                      "description": "Is Charge used to generate and validate the invoice."
+                    },
+                    "amount": {
+                      "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                      "type": "string",
+                      "title": "Amount",
+                      "description": "Amount used to generate and validate the invoice."
+                    },
+                    "base_amount": {
+                      "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                      "type": "string",
+                      "title": "Base Amount",
+                      "nullable": true,
+                      "description": "Base Amount used to generate and validate the invoice."
+                    },
+                    "percentage": {
+                      "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                      "type": "string",
+                      "title": "Percentage",
+                      "nullable": true,
+                      "description": "Percentage used to generate and validate the invoice."
+                    },
+                    "reason": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "title": "Reason",
+                      "type": "string",
+                      "description": "Reason used to generate and validate the invoice."
+                    },
+                    "reason_code": {
+                      "maxLength": 35,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Reason Code",
+                      "nullable": true,
+                      "description": "Reason Code used to generate and validate the invoice."
+                    },
+                    "tax_category": {
+                      "maxLength": 3,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Tax Category",
+                      "nullable": true,
+                      "description": "Tax Category used to generate and validate the invoice."
+                    },
+                    "tax_rate": {
+                      "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                      "type": "string",
+                      "title": "Tax Rate",
+                      "nullable": true,
+                      "description": "Tax Rate used to generate and validate the invoice."
+                    },
+                    "tax_exemption_reason": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Tax Exemption Reason",
+                      "nullable": true,
+                      "description": "Tax Exemption Reason used to generate and validate the invoice."
+                    },
+                    "tax_exemption_reason_code": {
+                      "maxLength": 35,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Tax Exemption Reason Code",
+                      "nullable": true,
+                      "description": "Tax Exemption Reason Code used to generate and validate the invoice."
+                    }
+                  },
+                  "required": [
+                    "is_charge",
+                    "amount",
+                    "reason"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 100,
+                "title": "Allowances Charges",
+                "type": "array",
+                "description": "Allowances Charges used to generate and validate the invoice."
+              },
+              "period": {
+                "additionalProperties": false,
+                "properties": {
+                  "start_date": {
+                    "type": "string",
+                    "title": "Start Date",
+                    "nullable": true,
+                    "description": "Start Date used to generate and validate the invoice.",
+                    "editor": "datepicker",
+                    "dateType": "absolute"
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "title": "End Date",
+                    "nullable": true,
+                    "description": "End Date used to generate and validate the invoice.",
+                    "editor": "datepicker",
+                    "dateType": "absolute"
+                  },
+                  "description_code": {
+                    "maxLength": 35,
+                    "minLength": 1,
+                    "type": "string",
+                    "title": "Description Code",
+                    "nullable": true,
+                    "description": "Description Code used to generate and validate the invoice."
+                  }
+                },
+                "title": "Period",
+                "type": "object",
+                "nullable": true,
+                "description": "Period used to generate and validate the invoice."
+              },
+              "accounting_cost": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string",
+                "title": "Accounting Cost",
+                "nullable": true,
+                "description": "Accounting Cost used to generate and validate the invoice."
+              },
+              "purchase_order_line_reference": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Purchase Order Line Reference",
+                "nullable": true,
+                "description": "Purchase Order Line Reference used to generate and validate the invoice."
+              },
+              "object_identifier": {
+                "additionalProperties": false,
+                "properties": {
+                  "value": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "title": "Value",
+                    "type": "string",
+                    "description": "Value used to generate and validate the invoice."
+                  },
+                  "scheme_id": {
+                    "maxLength": 35,
+                    "minLength": 1,
+                    "type": "string",
+                    "title": "Scheme Id",
+                    "nullable": true,
+                    "description": "Scheme Id used to generate and validate the invoice."
+                  }
+                },
+                "required": [
+                  "value"
+                ],
+                "title": "Identifier",
+                "type": "object",
+                "nullable": true,
+                "description": "Identifier used to generate and validate the invoice."
+              },
+              "seller_item_id": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Seller Item Id",
+                "nullable": true,
+                "description": "Seller Item Id used to generate and validate the invoice."
+              },
+              "buyer_item_id": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Buyer Item Id",
+                "nullable": true,
+                "description": "Buyer Item Id used to generate and validate the invoice."
+              },
+              "standard_item_id": {
+                "additionalProperties": false,
+                "properties": {
+                  "value": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "title": "Value",
+                    "type": "string",
+                    "description": "Value used to generate and validate the invoice."
+                  },
+                  "scheme_id": {
+                    "maxLength": 35,
+                    "minLength": 1,
+                    "type": "string",
+                    "title": "Scheme Id",
+                    "nullable": true,
+                    "description": "Scheme Id used to generate and validate the invoice."
+                  }
+                },
+                "required": [
+                  "value"
+                ],
+                "title": "Identifier",
+                "type": "object",
+                "nullable": true,
+                "description": "Identifier used to generate and validate the invoice."
+              },
+              "classifications": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "value": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Value",
+                      "type": "string",
+                      "description": "Value used to generate and validate the invoice."
+                    },
+                    "scheme_id": {
+                      "maxLength": 35,
+                      "minLength": 1,
+                      "title": "Scheme Id",
+                      "type": "string",
+                      "description": "Scheme Id used to generate and validate the invoice."
+                    },
+                    "scheme_version": {
+                      "maxLength": 35,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Scheme Version",
+                      "nullable": true,
+                      "description": "Scheme Version used to generate and validate the invoice."
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "scheme_id"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 20,
+                "title": "Classifications",
+                "type": "array",
+                "description": "Classifications used to generate and validate the invoice."
+              },
+              "attributes": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "maxLength": 100,
+                      "minLength": 1,
+                      "title": "Name",
+                      "type": "string",
+                      "description": "Name used to generate and validate the invoice."
+                    },
+                    "value": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "title": "Value",
+                      "type": "string",
+                      "description": "Value used to generate and validate the invoice."
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 50,
+                "title": "Attributes",
+                "type": "array",
+                "description": "Attributes used to generate and validate the invoice."
+              },
+              "origin_country_code": {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string",
+                "title": "Origin Country Code",
+                "nullable": true,
+                "description": "Origin Country Code used to generate and validate the invoice."
+              }
+            },
             "required": [
               "description",
               "quantity",
               "unit_price",
               "tax_rate"
             ],
+            "type": "object"
+          },
+          "maxItems": 1000,
+          "minItems": 1,
+          "title": "Lines",
+          "type": "array",
+          "description": "Lines used to generate and validate the invoice."
+        },
+        "document_allowances_charges": {
+          "items": {
+            "additionalProperties": false,
             "properties": {
-              "id": {
+              "is_charge": {
+                "title": "Is Charge",
+                "type": "boolean",
+                "description": "Is Charge used to generate and validate the invoice."
+              },
+              "amount": {
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
                 "type": "string",
+                "title": "Amount",
+                "description": "Amount used to generate and validate the invoice."
+              },
+              "base_amount": {
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                "type": "string",
+                "title": "Base Amount",
+                "nullable": true,
+                "description": "Base Amount used to generate and validate the invoice."
+              },
+              "percentage": {
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                "type": "string",
+                "title": "Percentage",
+                "nullable": true,
+                "description": "Percentage used to generate and validate the invoice."
+              },
+              "reason": {
+                "maxLength": 500,
                 "minLength": 1,
-                "maxLength": 30
-              },
-              "description": {
+                "title": "Reason",
                 "type": "string",
+                "description": "Reason used to generate and validate the invoice."
+              },
+              "reason_code": {
+                "maxLength": 35,
                 "minLength": 1,
-                "maxLength": 500
-              },
-              "quantity": {
                 "type": "string",
-                "pattern": "^(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
-                "description": "Decimal string. JSON floating-point numbers are rejected."
-              },
-              "unit_code": {
-                "type": "string",
-                "pattern": "^[A-Za-z0-9]{2,3}$",
-                "default": "C62"
-              },
-              "unit_price": {
-                "type": "string",
-                "pattern": "^(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
-                "description": "Decimal string. JSON floating-point numbers are rejected."
-              },
-              "tax_rate": {
-                "type": "string",
-                "pattern": "^(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
-                "description": "Decimal string. JSON floating-point numbers are rejected."
+                "title": "Reason Code",
+                "nullable": true,
+                "description": "Reason Code used to generate and validate the invoice."
               },
               "tax_category": {
-                "type": "string",
+                "maxLength": 3,
                 "minLength": 1,
-                "maxLength": 2,
-                "default": "S"
+                "type": "string",
+                "title": "Tax Category",
+                "nullable": true,
+                "description": "Tax Category used to generate and validate the invoice."
+              },
+              "tax_rate": {
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                "type": "string",
+                "title": "Tax Rate",
+                "nullable": true,
+                "description": "Tax Rate used to generate and validate the invoice."
               },
               "tax_exemption_reason": {
-                "type": "string",
+                "maxLength": 500,
                 "minLength": 1,
-                "maxLength": 500
+                "type": "string",
+                "title": "Tax Exemption Reason",
+                "nullable": true,
+                "description": "Tax Exemption Reason used to generate and validate the invoice."
+              },
+              "tax_exemption_reason_code": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Tax Exemption Reason Code",
+                "nullable": true,
+                "description": "Tax Exemption Reason Code used to generate and validate the invoice."
               }
-            }
-          }
+            },
+            "required": [
+              "is_charge",
+              "amount",
+              "reason"
+            ],
+            "type": "object"
+          },
+          "maxItems": 100,
+          "title": "Document Allowances Charges",
+          "type": "array",
+          "description": "Document Allowances Charges used to generate and validate the invoice."
         },
         "payment": {
-          "type": "object",
           "additionalProperties": false,
           "properties": {
             "means_code": {
-              "type": "string",
-              "minLength": 1,
+              "default": "30",
               "maxLength": 3,
-              "default": "30"
+              "minLength": 1,
+              "title": "Means Code",
+              "type": "string",
+              "description": "Means Code used to generate and validate the invoice."
+            },
+            "means_text": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string",
+              "title": "Means Text",
+              "nullable": true,
+              "description": "Means Text used to generate and validate the invoice."
             },
             "reference": {
+              "maxLength": 140,
               "type": "string",
-              "maxLength": 140
+              "title": "Reference",
+              "nullable": true,
+              "description": "Reference used to generate and validate the invoice."
+            },
+            "account_id": {
+              "maxLength": 70,
+              "minLength": 1,
+              "type": "string",
+              "title": "Account Id",
+              "nullable": true,
+              "description": "Account Id used to generate and validate the invoice."
+            },
+            "account_name": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string",
+              "title": "Account Name",
+              "nullable": true,
+              "description": "Account Name used to generate and validate the invoice."
             },
             "iban": {
-              "type": "string",
+              "maxLength": 34,
               "minLength": 5,
-              "maxLength": 34
+              "type": "string",
+              "title": "Iban",
+              "nullable": true,
+              "description": "Iban used to generate and validate the invoice."
             },
             "bic": {
-              "type": "string",
+              "maxLength": 11,
               "minLength": 8,
-              "maxLength": 11
+              "type": "string",
+              "title": "Bic",
+              "nullable": true,
+              "description": "Bic used to generate and validate the invoice."
+            },
+            "bank_name": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string",
+              "title": "Bank Name",
+              "nullable": true,
+              "description": "Bank Name used to generate and validate the invoice."
+            },
+            "mandate_reference": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string",
+              "title": "Mandate Reference",
+              "nullable": true,
+              "description": "Mandate Reference used to generate and validate the invoice."
+            },
+            "creditor_identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string",
+              "title": "Creditor Identifier",
+              "nullable": true,
+              "description": "Creditor Identifier used to generate and validate the invoice."
+            },
+            "payer_account_id": {
+              "maxLength": 70,
+              "minLength": 1,
+              "type": "string",
+              "title": "Payer Account Id",
+              "nullable": true,
+              "description": "Payer Account Id used to generate and validate the invoice."
+            },
+            "card_primary_account_number": {
+              "maxLength": 6,
+              "minLength": 4,
+              "type": "string",
+              "title": "Card Primary Account Number",
+              "nullable": true,
+              "description": "Card Primary Account Number used to generate and validate the invoice."
+            },
+            "card_holder_name": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string",
+              "title": "Card Holder Name",
+              "nullable": true,
+              "description": "Card Holder Name used to generate and validate the invoice."
             }
-          }
+          },
+          "title": "Payment",
+          "type": "object",
+          "description": "Payment used to generate and validate the invoice."
+        },
+        "payment_terms": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "type": "string",
+          "title": "Payment Terms",
+          "nullable": true,
+          "description": "Payment Terms used to generate and validate the invoice."
+        },
+        "prepaid_amount": {
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+          "type": "string",
+          "default": "0",
+          "title": "Prepaid Amount",
+          "description": "Prepaid Amount used to generate and validate the invoice."
+        },
+        "rounding_amount": {
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+          "type": "string",
+          "default": "0",
+          "title": "Rounding Amount",
+          "description": "Rounding Amount used to generate and validate the invoice."
         },
         "notes": {
-          "type": "array",
-          "maxItems": 20,
           "items": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 500
-          }
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Notes",
+          "type": "array",
+          "description": "Notes used to generate and validate the invoice."
+        },
+        "preceding_invoices": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "maxLength": 200,
+                "minLength": 1,
+                "title": "Id",
+                "type": "string",
+                "description": "Id used to generate and validate the invoice."
+              },
+              "issue_date": {
+                "type": "string",
+                "title": "Issue Date",
+                "nullable": true,
+                "description": "Issue Date used to generate and validate the invoice.",
+                "editor": "datepicker",
+                "dateType": "absolute"
+              },
+              "type_code": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Type Code",
+                "nullable": true,
+                "description": "Type Code used to generate and validate the invoice."
+              },
+              "description": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string",
+                "title": "Description",
+                "nullable": true,
+                "description": "Description used to generate and validate the invoice."
+              },
+              "id_scheme": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Id Scheme",
+                "nullable": true,
+                "description": "Id Scheme used to generate and validate the invoice."
+              },
+              "attachment": {
+                "additionalProperties": false,
+                "properties": {
+                  "filename": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string",
+                    "title": "Filename",
+                    "nullable": true,
+                    "description": "Filename used to generate and validate the invoice."
+                  },
+                  "mime_type": {
+                    "maxLength": 100,
+                    "minLength": 3,
+                    "type": "string",
+                    "title": "Mime Type",
+                    "nullable": true,
+                    "description": "Mime Type used to generate and validate the invoice."
+                  },
+                  "description": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string",
+                    "title": "Description",
+                    "nullable": true,
+                    "description": "Description used to generate and validate the invoice."
+                  },
+                  "content_base64": {
+                    "type": "string",
+                    "title": "Content Base64",
+                    "nullable": true,
+                    "description": "Content Base64 used to generate and validate the invoice."
+                  },
+                  "external_uri": {
+                    "maxLength": 2000,
+                    "minLength": 1,
+                    "type": "string",
+                    "title": "External Uri",
+                    "nullable": true,
+                    "description": "External Uri used to generate and validate the invoice."
+                  }
+                },
+                "title": "Attachment",
+                "type": "object",
+                "nullable": true,
+                "description": "Attachment used to generate and validate the invoice."
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "type": "object"
+          },
+          "maxItems": 100,
+          "title": "Preceding Invoices",
+          "type": "array",
+          "description": "Preceding Invoices used to generate and validate the invoice."
+        },
+        "supporting_documents": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "maxLength": 200,
+                "minLength": 1,
+                "title": "Id",
+                "type": "string",
+                "description": "Id used to generate and validate the invoice."
+              },
+              "issue_date": {
+                "type": "string",
+                "title": "Issue Date",
+                "nullable": true,
+                "description": "Issue Date used to generate and validate the invoice.",
+                "editor": "datepicker",
+                "dateType": "absolute"
+              },
+              "type_code": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Type Code",
+                "nullable": true,
+                "description": "Type Code used to generate and validate the invoice."
+              },
+              "description": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string",
+                "title": "Description",
+                "nullable": true,
+                "description": "Description used to generate and validate the invoice."
+              },
+              "id_scheme": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Id Scheme",
+                "nullable": true,
+                "description": "Id Scheme used to generate and validate the invoice."
+              },
+              "attachment": {
+                "additionalProperties": false,
+                "properties": {
+                  "filename": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string",
+                    "title": "Filename",
+                    "nullable": true,
+                    "description": "Filename used to generate and validate the invoice."
+                  },
+                  "mime_type": {
+                    "maxLength": 100,
+                    "minLength": 3,
+                    "type": "string",
+                    "title": "Mime Type",
+                    "nullable": true,
+                    "description": "Mime Type used to generate and validate the invoice."
+                  },
+                  "description": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string",
+                    "title": "Description",
+                    "nullable": true,
+                    "description": "Description used to generate and validate the invoice."
+                  },
+                  "content_base64": {
+                    "type": "string",
+                    "title": "Content Base64",
+                    "nullable": true,
+                    "description": "Content Base64 used to generate and validate the invoice."
+                  },
+                  "external_uri": {
+                    "maxLength": 2000,
+                    "minLength": 1,
+                    "type": "string",
+                    "title": "External Uri",
+                    "nullable": true,
+                    "description": "External Uri used to generate and validate the invoice."
+                  }
+                },
+                "title": "Attachment",
+                "type": "object",
+                "nullable": true,
+                "description": "Attachment used to generate and validate the invoice."
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "type": "object"
+          },
+          "maxItems": 100,
+          "title": "Supporting Documents",
+          "type": "array",
+          "description": "Supporting Documents used to generate and validate the invoice."
         },
         "extensions": {
           "type": "object",
-          "description": "Product-specific fields. Unknown fields may be rejected by the selected product adapter."
+          "additionalProperties": false,
+          "properties": {
+            "peppol": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "business_process_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "title": "Business process id",
+                  "description": "Business process id used to generate and validate the invoice."
+                }
+              },
+              "title": "Peppol",
+              "description": "Peppol used to generate and validate the invoice."
+            }
+          },
+          "required": [
+            "peppol"
+          ],
+          "description": "Product-specific options. Unknown fields are rejected.",
+          "title": "Extensions"
         }
       },
+      "required": [
+        "invoice_number",
+        "issue_date",
+        "seller",
+        "buyer",
+        "lines"
+      ],
       "title": "Invoice JSON",
-      "description": "One invoice for Peppol BIS Billing 3.0.20.",
+      "type": "object",
+      "description": "One invoice for Peppol BIS Billing 3.0.20-hotfix + 3.0.21 forward gate.",
       "editor": "json",
       "prefill": {
         "invoice_number": "INV-2026-0001",
@@ -412,12 +2104,18 @@
         },
         "notes": [
           "Generated sample for technical preflight."
-        ]
+        ],
+        "extensions": {
+          "peppol": {
+            "business_process_id": "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0"
+          }
+        }
       },
       "sectionCaption": "Invoice input",
       "sectionDescription": "Amounts must be decimal strings. The output is generated and validated in the same call."
     },
     "invoices": {
+      "isSecret": true,
       "title": "Batch invoices",
       "description": "Optional batch of up to 100 invoices. Do not use with invoice.",
       "type": "array",
@@ -425,351 +2123,2041 @@
       "minItems": 1,
       "maxItems": 100,
       "items": {
-        "type": "object",
         "additionalProperties": false,
-        "required": [
-          "invoice_number",
-          "issue_date",
-          "due_date",
-          "seller",
-          "buyer",
-          "lines"
-        ],
         "properties": {
           "invoice_number": {
-            "type": "string",
+            "maxLength": 60,
             "minLength": 1,
-            "maxLength": 60
+            "title": "Invoice Number",
+            "type": "string",
+            "description": "Invoice Number used to generate and validate the invoice."
+          },
+          "document_kind": {
+            "default": "invoice",
+            "enum": [
+              "invoice",
+              "credit_note"
+            ],
+            "title": "Document Kind",
+            "type": "string",
+            "description": "Document Kind used to generate and validate the invoice."
           },
           "issue_date": {
+            "title": "Issue Date",
             "type": "string",
-            "format": "date"
+            "description": "Issue Date used to generate and validate the invoice.",
+            "editor": "datepicker",
+            "dateType": "absolute"
           },
           "due_date": {
             "type": "string",
-            "format": "date"
+            "title": "Due Date",
+            "nullable": true,
+            "description": "Due Date used to generate and validate the invoice.",
+            "editor": "datepicker",
+            "dateType": "absolute"
+          },
+          "tax_point_date": {
+            "type": "string",
+            "title": "Tax Point Date",
+            "nullable": true,
+            "description": "Tax Point Date used to generate and validate the invoice.",
+            "editor": "datepicker",
+            "dateType": "absolute"
+          },
+          "tax_point_date_code": {
+            "maxLength": 35,
+            "minLength": 1,
+            "type": "string",
+            "title": "Tax Point Date Code",
+            "nullable": true,
+            "description": "Tax Point Date Code used to generate and validate the invoice."
           },
           "delivery_date": {
             "type": "string",
-            "format": "date",
-            "description": "Actual delivery or service date when known."
+            "title": "Delivery Date",
+            "nullable": true,
+            "description": "Delivery Date used to generate and validate the invoice.",
+            "editor": "datepicker",
+            "dateType": "absolute"
+          },
+          "invoice_period": {
+            "additionalProperties": false,
+            "properties": {
+              "start_date": {
+                "type": "string",
+                "title": "Start Date",
+                "nullable": true,
+                "description": "Start Date used to generate and validate the invoice.",
+                "editor": "datepicker",
+                "dateType": "absolute"
+              },
+              "end_date": {
+                "type": "string",
+                "title": "End Date",
+                "nullable": true,
+                "description": "End Date used to generate and validate the invoice.",
+                "editor": "datepicker",
+                "dateType": "absolute"
+              },
+              "description_code": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Description Code",
+                "nullable": true,
+                "description": "Description Code used to generate and validate the invoice."
+              }
+            },
+            "title": "Period",
+            "type": "object",
+            "nullable": true,
+            "description": "Period used to generate and validate the invoice."
+          },
+          "delivery_period": {
+            "additionalProperties": false,
+            "properties": {
+              "start_date": {
+                "type": "string",
+                "title": "Start Date",
+                "nullable": true,
+                "description": "Start Date used to generate and validate the invoice.",
+                "editor": "datepicker",
+                "dateType": "absolute"
+              },
+              "end_date": {
+                "type": "string",
+                "title": "End Date",
+                "nullable": true,
+                "description": "End Date used to generate and validate the invoice.",
+                "editor": "datepicker",
+                "dateType": "absolute"
+              },
+              "description_code": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Description Code",
+                "nullable": true,
+                "description": "Description Code used to generate and validate the invoice."
+              }
+            },
+            "title": "Period",
+            "type": "object",
+            "nullable": true,
+            "description": "Period used to generate and validate the invoice."
           },
           "currency": {
+            "default": "EUR",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency",
             "type": "string",
-            "pattern": "^[A-Za-z]{3}$",
-            "default": "EUR"
+            "description": "Currency used to generate and validate the invoice."
+          },
+          "tax_currency": {
+            "maxLength": 3,
+            "minLength": 3,
+            "type": "string",
+            "title": "Tax Currency",
+            "nullable": true,
+            "description": "Tax Currency used to generate and validate the invoice."
+          },
+          "tax_currency_tax_amount": {
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string",
+            "title": "Tax Currency Tax Amount",
+            "nullable": true,
+            "description": "Tax Currency Tax Amount used to generate and validate the invoice."
           },
           "invoice_type_code": {
+            "default": "380",
+            "maxLength": 3,
+            "minLength": 2,
+            "title": "Invoice Type Code",
             "type": "string",
-            "enum": [
-              "380"
-            ],
-            "default": "380"
+            "description": "Invoice Type Code used to generate and validate the invoice."
           },
           "buyer_reference": {
+            "maxLength": 100,
             "type": "string",
-            "minLength": 1,
-            "maxLength": 100
+            "title": "Buyer Reference",
+            "nullable": true,
+            "description": "Buyer Reference used to generate and validate the invoice."
           },
           "purchase_order_reference": {
+            "maxLength": 100,
             "type": "string",
-            "minLength": 1,
-            "maxLength": 100
+            "title": "Purchase Order Reference",
+            "nullable": true,
+            "description": "Purchase Order Reference used to generate and validate the invoice."
+          },
+          "sales_order_reference": {
+            "maxLength": 100,
+            "type": "string",
+            "title": "Sales Order Reference",
+            "nullable": true,
+            "description": "Sales Order Reference used to generate and validate the invoice."
+          },
+          "contract_reference": {
+            "maxLength": 100,
+            "type": "string",
+            "title": "Contract Reference",
+            "nullable": true,
+            "description": "Contract Reference used to generate and validate the invoice."
+          },
+          "project_reference": {
+            "maxLength": 100,
+            "type": "string",
+            "title": "Project Reference",
+            "nullable": true,
+            "description": "Project Reference used to generate and validate the invoice."
+          },
+          "project_name": {
+            "maxLength": 200,
+            "type": "string",
+            "title": "Project Name",
+            "nullable": true,
+            "description": "Project Name used to generate and validate the invoice."
+          },
+          "tender_reference": {
+            "maxLength": 100,
+            "type": "string",
+            "title": "Tender Reference",
+            "nullable": true,
+            "description": "Tender Reference used to generate and validate the invoice."
+          },
+          "receiving_advice_reference": {
+            "maxLength": 100,
+            "type": "string",
+            "title": "Receiving Advice Reference",
+            "nullable": true,
+            "description": "Receiving Advice Reference used to generate and validate the invoice."
+          },
+          "despatch_advice_reference": {
+            "maxLength": 100,
+            "type": "string",
+            "title": "Despatch Advice Reference",
+            "nullable": true,
+            "description": "Despatch Advice Reference used to generate and validate the invoice."
+          },
+          "accounting_cost": {
+            "maxLength": 200,
+            "type": "string",
+            "title": "Accounting Cost",
+            "nullable": true,
+            "description": "Accounting Cost used to generate and validate the invoice."
           },
           "seller": {
-            "type": "object",
             "additionalProperties": false,
-            "required": [
-              "name",
-              "address"
-            ],
             "properties": {
               "name": {
-                "type": "string",
+                "maxLength": 200,
                 "minLength": 1,
-                "maxLength": 200
+                "title": "Name",
+                "type": "string",
+                "description": "Name used to generate and validate the invoice."
               },
               "address": {
-                "type": "object",
                 "additionalProperties": false,
+                "properties": {
+                  "line1": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "title": "Line1",
+                    "type": "string",
+                    "description": "Line1 used to generate and validate the invoice."
+                  },
+                  "line2": {
+                    "maxLength": 100,
+                    "type": "string",
+                    "title": "Line2",
+                    "nullable": true,
+                    "description": "Line2 used to generate and validate the invoice."
+                  },
+                  "line3": {
+                    "maxLength": 100,
+                    "type": "string",
+                    "title": "Line3",
+                    "nullable": true,
+                    "description": "Line3 used to generate and validate the invoice."
+                  },
+                  "city": {
+                    "maxLength": 60,
+                    "minLength": 1,
+                    "title": "City",
+                    "type": "string",
+                    "description": "City used to generate and validate the invoice."
+                  },
+                  "postal_code": {
+                    "maxLength": 20,
+                    "minLength": 1,
+                    "title": "Postal Code",
+                    "type": "string",
+                    "description": "Postal Code used to generate and validate the invoice."
+                  },
+                  "country_code": {
+                    "maxLength": 2,
+                    "minLength": 2,
+                    "title": "Country Code",
+                    "type": "string",
+                    "description": "Country Code used to generate and validate the invoice."
+                  },
+                  "region": {
+                    "maxLength": 60,
+                    "type": "string",
+                    "title": "Region",
+                    "nullable": true,
+                    "description": "Region used to generate and validate the invoice."
+                  }
+                },
                 "required": [
                   "line1",
                   "city",
                   "postal_code",
                   "country_code"
                 ],
-                "properties": {
-                  "line1": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 100
-                  },
-                  "line2": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 100
-                  },
-                  "city": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 60
-                  },
-                  "postal_code": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 20
-                  },
-                  "country_code": {
-                    "type": "string",
-                    "pattern": "^[A-Za-z]{2}$",
-                    "description": "ISO 3166-1 alpha-2 country code."
-                  },
-                  "region": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 60
-                  }
-                }
+                "title": "Address",
+                "type": "object",
+                "description": "Address used to generate and validate the invoice."
+              },
+              "trading_name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string",
+                "title": "Trading Name",
+                "nullable": true,
+                "description": "Trading Name used to generate and validate the invoice."
               },
               "vat_id": {
-                "type": "string",
+                "maxLength": 30,
                 "minLength": 2,
-                "maxLength": 30
+                "type": "string",
+                "title": "Vat Id",
+                "nullable": true,
+                "description": "Vat Id used to generate and validate the invoice."
               },
               "tax_id": {
-                "type": "string",
+                "maxLength": 40,
                 "minLength": 2,
-                "maxLength": 40
+                "type": "string",
+                "title": "Tax Id",
+                "nullable": true,
+                "description": "Tax Id used to generate and validate the invoice."
               },
               "registration_id": {
-                "type": "string",
+                "maxLength": 60,
                 "minLength": 1,
-                "maxLength": 60
+                "type": "string",
+                "title": "Registration Id",
+                "nullable": true,
+                "description": "Registration Id used to generate and validate the invoice."
+              },
+              "registration_scheme": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Registration Scheme",
+                "nullable": true,
+                "description": "Registration Scheme used to generate and validate the invoice."
+              },
+              "additional_identifiers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "value": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Value",
+                      "type": "string",
+                      "description": "Value used to generate and validate the invoice."
+                    },
+                    "scheme_id": {
+                      "maxLength": 35,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Scheme Id",
+                      "nullable": true,
+                      "description": "Scheme Id used to generate and validate the invoice."
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 20,
+                "title": "Additional Identifiers",
+                "type": "array",
+                "description": "Additional Identifiers used to generate and validate the invoice."
               },
               "endpoint_id": {
-                "type": "string",
+                "maxLength": 200,
                 "minLength": 1,
-                "maxLength": 80
+                "type": "string",
+                "title": "Endpoint Id",
+                "nullable": true,
+                "description": "Endpoint Id used to generate and validate the invoice."
               },
               "endpoint_scheme": {
-                "type": "string",
+                "maxLength": 35,
                 "minLength": 1,
-                "maxLength": 10
+                "type": "string",
+                "title": "Endpoint Scheme",
+                "nullable": true,
+                "description": "Endpoint Scheme used to generate and validate the invoice."
+              },
+              "legal_information": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string",
+                "title": "Legal Information",
+                "nullable": true,
+                "description": "Legal Information used to generate and validate the invoice."
               },
               "contact_name": {
-                "type": "string",
+                "maxLength": 100,
                 "minLength": 1,
-                "maxLength": 100
+                "type": "string",
+                "title": "Contact Name",
+                "nullable": true,
+                "description": "Contact Name used to generate and validate the invoice."
+              },
+              "contact_department": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Contact Department",
+                "nullable": true,
+                "description": "Contact Department used to generate and validate the invoice."
               },
               "phone": {
-                "type": "string",
+                "maxLength": 50,
                 "minLength": 3,
-                "maxLength": 50
+                "type": "string",
+                "title": "Phone",
+                "nullable": true,
+                "description": "Phone used to generate and validate the invoice."
               },
               "email": {
-                "type": "string",
+                "maxLength": 254,
                 "minLength": 3,
-                "maxLength": 254
+                "type": "string",
+                "title": "Email",
+                "nullable": true,
+                "description": "Email used to generate and validate the invoice."
               }
             },
-            "description": "Supply at least one of vat_id, tax_id, or registration_id."
+            "required": [
+              "name",
+              "address"
+            ],
+            "title": "Party",
+            "type": "object",
+            "description": "Party used to generate and validate the invoice."
           },
           "buyer": {
-            "type": "object",
             "additionalProperties": false,
-            "required": [
-              "name",
-              "address"
-            ],
             "properties": {
               "name": {
-                "type": "string",
+                "maxLength": 200,
                 "minLength": 1,
-                "maxLength": 200
+                "title": "Name",
+                "type": "string",
+                "description": "Name used to generate and validate the invoice."
               },
               "address": {
-                "type": "object",
                 "additionalProperties": false,
+                "properties": {
+                  "line1": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "title": "Line1",
+                    "type": "string",
+                    "description": "Line1 used to generate and validate the invoice."
+                  },
+                  "line2": {
+                    "maxLength": 100,
+                    "type": "string",
+                    "title": "Line2",
+                    "nullable": true,
+                    "description": "Line2 used to generate and validate the invoice."
+                  },
+                  "line3": {
+                    "maxLength": 100,
+                    "type": "string",
+                    "title": "Line3",
+                    "nullable": true,
+                    "description": "Line3 used to generate and validate the invoice."
+                  },
+                  "city": {
+                    "maxLength": 60,
+                    "minLength": 1,
+                    "title": "City",
+                    "type": "string",
+                    "description": "City used to generate and validate the invoice."
+                  },
+                  "postal_code": {
+                    "maxLength": 20,
+                    "minLength": 1,
+                    "title": "Postal Code",
+                    "type": "string",
+                    "description": "Postal Code used to generate and validate the invoice."
+                  },
+                  "country_code": {
+                    "maxLength": 2,
+                    "minLength": 2,
+                    "title": "Country Code",
+                    "type": "string",
+                    "description": "Country Code used to generate and validate the invoice."
+                  },
+                  "region": {
+                    "maxLength": 60,
+                    "type": "string",
+                    "title": "Region",
+                    "nullable": true,
+                    "description": "Region used to generate and validate the invoice."
+                  }
+                },
                 "required": [
                   "line1",
                   "city",
                   "postal_code",
                   "country_code"
                 ],
-                "properties": {
-                  "line1": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 100
-                  },
-                  "line2": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 100
-                  },
-                  "city": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 60
-                  },
-                  "postal_code": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 20
-                  },
-                  "country_code": {
-                    "type": "string",
-                    "pattern": "^[A-Za-z]{2}$",
-                    "description": "ISO 3166-1 alpha-2 country code."
-                  },
-                  "region": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 60
-                  }
-                }
+                "title": "Address",
+                "type": "object",
+                "description": "Address used to generate and validate the invoice."
+              },
+              "trading_name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string",
+                "title": "Trading Name",
+                "nullable": true,
+                "description": "Trading Name used to generate and validate the invoice."
               },
               "vat_id": {
-                "type": "string",
+                "maxLength": 30,
                 "minLength": 2,
-                "maxLength": 30
+                "type": "string",
+                "title": "Vat Id",
+                "nullable": true,
+                "description": "Vat Id used to generate and validate the invoice."
               },
               "tax_id": {
-                "type": "string",
+                "maxLength": 40,
                 "minLength": 2,
-                "maxLength": 40
+                "type": "string",
+                "title": "Tax Id",
+                "nullable": true,
+                "description": "Tax Id used to generate and validate the invoice."
               },
               "registration_id": {
-                "type": "string",
+                "maxLength": 60,
                 "minLength": 1,
-                "maxLength": 60
+                "type": "string",
+                "title": "Registration Id",
+                "nullable": true,
+                "description": "Registration Id used to generate and validate the invoice."
+              },
+              "registration_scheme": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Registration Scheme",
+                "nullable": true,
+                "description": "Registration Scheme used to generate and validate the invoice."
+              },
+              "additional_identifiers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "value": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Value",
+                      "type": "string",
+                      "description": "Value used to generate and validate the invoice."
+                    },
+                    "scheme_id": {
+                      "maxLength": 35,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Scheme Id",
+                      "nullable": true,
+                      "description": "Scheme Id used to generate and validate the invoice."
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 20,
+                "title": "Additional Identifiers",
+                "type": "array",
+                "description": "Additional Identifiers used to generate and validate the invoice."
               },
               "endpoint_id": {
-                "type": "string",
+                "maxLength": 200,
                 "minLength": 1,
-                "maxLength": 80
+                "type": "string",
+                "title": "Endpoint Id",
+                "nullable": true,
+                "description": "Endpoint Id used to generate and validate the invoice."
               },
               "endpoint_scheme": {
-                "type": "string",
+                "maxLength": 35,
                 "minLength": 1,
-                "maxLength": 10
+                "type": "string",
+                "title": "Endpoint Scheme",
+                "nullable": true,
+                "description": "Endpoint Scheme used to generate and validate the invoice."
+              },
+              "legal_information": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string",
+                "title": "Legal Information",
+                "nullable": true,
+                "description": "Legal Information used to generate and validate the invoice."
               },
               "contact_name": {
-                "type": "string",
+                "maxLength": 100,
                 "minLength": 1,
-                "maxLength": 100
+                "type": "string",
+                "title": "Contact Name",
+                "nullable": true,
+                "description": "Contact Name used to generate and validate the invoice."
+              },
+              "contact_department": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Contact Department",
+                "nullable": true,
+                "description": "Contact Department used to generate and validate the invoice."
               },
               "phone": {
-                "type": "string",
+                "maxLength": 50,
                 "minLength": 3,
-                "maxLength": 50
+                "type": "string",
+                "title": "Phone",
+                "nullable": true,
+                "description": "Phone used to generate and validate the invoice."
               },
               "email": {
-                "type": "string",
+                "maxLength": 254,
                 "minLength": 3,
-                "maxLength": 254
+                "type": "string",
+                "title": "Email",
+                "nullable": true,
+                "description": "Email used to generate and validate the invoice."
               }
             },
-            "description": "Supply at least one of vat_id, tax_id, or registration_id."
+            "required": [
+              "name",
+              "address"
+            ],
+            "title": "Party",
+            "type": "object",
+            "description": "Party used to generate and validate the invoice."
+          },
+          "payee": {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "title": "Name",
+                "type": "string",
+                "description": "Name used to generate and validate the invoice."
+              },
+              "address": {
+                "additionalProperties": false,
+                "properties": {
+                  "line1": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "title": "Line1",
+                    "type": "string",
+                    "description": "Line1 used to generate and validate the invoice."
+                  },
+                  "line2": {
+                    "maxLength": 100,
+                    "type": "string",
+                    "title": "Line2",
+                    "nullable": true,
+                    "description": "Line2 used to generate and validate the invoice."
+                  },
+                  "line3": {
+                    "maxLength": 100,
+                    "type": "string",
+                    "title": "Line3",
+                    "nullable": true,
+                    "description": "Line3 used to generate and validate the invoice."
+                  },
+                  "city": {
+                    "maxLength": 60,
+                    "minLength": 1,
+                    "title": "City",
+                    "type": "string",
+                    "description": "City used to generate and validate the invoice."
+                  },
+                  "postal_code": {
+                    "maxLength": 20,
+                    "minLength": 1,
+                    "title": "Postal Code",
+                    "type": "string",
+                    "description": "Postal Code used to generate and validate the invoice."
+                  },
+                  "country_code": {
+                    "maxLength": 2,
+                    "minLength": 2,
+                    "title": "Country Code",
+                    "type": "string",
+                    "description": "Country Code used to generate and validate the invoice."
+                  },
+                  "region": {
+                    "maxLength": 60,
+                    "type": "string",
+                    "title": "Region",
+                    "nullable": true,
+                    "description": "Region used to generate and validate the invoice."
+                  }
+                },
+                "required": [
+                  "line1",
+                  "city",
+                  "postal_code",
+                  "country_code"
+                ],
+                "title": "Address",
+                "type": "object",
+                "description": "Address used to generate and validate the invoice."
+              },
+              "trading_name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string",
+                "title": "Trading Name",
+                "nullable": true,
+                "description": "Trading Name used to generate and validate the invoice."
+              },
+              "vat_id": {
+                "maxLength": 30,
+                "minLength": 2,
+                "type": "string",
+                "title": "Vat Id",
+                "nullable": true,
+                "description": "Vat Id used to generate and validate the invoice."
+              },
+              "tax_id": {
+                "maxLength": 40,
+                "minLength": 2,
+                "type": "string",
+                "title": "Tax Id",
+                "nullable": true,
+                "description": "Tax Id used to generate and validate the invoice."
+              },
+              "registration_id": {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string",
+                "title": "Registration Id",
+                "nullable": true,
+                "description": "Registration Id used to generate and validate the invoice."
+              },
+              "registration_scheme": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Registration Scheme",
+                "nullable": true,
+                "description": "Registration Scheme used to generate and validate the invoice."
+              },
+              "additional_identifiers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "value": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Value",
+                      "type": "string",
+                      "description": "Value used to generate and validate the invoice."
+                    },
+                    "scheme_id": {
+                      "maxLength": 35,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Scheme Id",
+                      "nullable": true,
+                      "description": "Scheme Id used to generate and validate the invoice."
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 20,
+                "title": "Additional Identifiers",
+                "type": "array",
+                "description": "Additional Identifiers used to generate and validate the invoice."
+              },
+              "endpoint_id": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string",
+                "title": "Endpoint Id",
+                "nullable": true,
+                "description": "Endpoint Id used to generate and validate the invoice."
+              },
+              "endpoint_scheme": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Endpoint Scheme",
+                "nullable": true,
+                "description": "Endpoint Scheme used to generate and validate the invoice."
+              },
+              "legal_information": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string",
+                "title": "Legal Information",
+                "nullable": true,
+                "description": "Legal Information used to generate and validate the invoice."
+              },
+              "contact_name": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Contact Name",
+                "nullable": true,
+                "description": "Contact Name used to generate and validate the invoice."
+              },
+              "contact_department": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Contact Department",
+                "nullable": true,
+                "description": "Contact Department used to generate and validate the invoice."
+              },
+              "phone": {
+                "maxLength": 50,
+                "minLength": 3,
+                "type": "string",
+                "title": "Phone",
+                "nullable": true,
+                "description": "Phone used to generate and validate the invoice."
+              },
+              "email": {
+                "maxLength": 254,
+                "minLength": 3,
+                "type": "string",
+                "title": "Email",
+                "nullable": true,
+                "description": "Email used to generate and validate the invoice."
+              }
+            },
+            "required": [
+              "name",
+              "address"
+            ],
+            "title": "Party",
+            "type": "object",
+            "nullable": true,
+            "description": "Party used to generate and validate the invoice."
+          },
+          "seller_tax_representative": {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "title": "Name",
+                "type": "string",
+                "description": "Name used to generate and validate the invoice."
+              },
+              "address": {
+                "additionalProperties": false,
+                "properties": {
+                  "line1": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "title": "Line1",
+                    "type": "string",
+                    "description": "Line1 used to generate and validate the invoice."
+                  },
+                  "line2": {
+                    "maxLength": 100,
+                    "type": "string",
+                    "title": "Line2",
+                    "nullable": true,
+                    "description": "Line2 used to generate and validate the invoice."
+                  },
+                  "line3": {
+                    "maxLength": 100,
+                    "type": "string",
+                    "title": "Line3",
+                    "nullable": true,
+                    "description": "Line3 used to generate and validate the invoice."
+                  },
+                  "city": {
+                    "maxLength": 60,
+                    "minLength": 1,
+                    "title": "City",
+                    "type": "string",
+                    "description": "City used to generate and validate the invoice."
+                  },
+                  "postal_code": {
+                    "maxLength": 20,
+                    "minLength": 1,
+                    "title": "Postal Code",
+                    "type": "string",
+                    "description": "Postal Code used to generate and validate the invoice."
+                  },
+                  "country_code": {
+                    "maxLength": 2,
+                    "minLength": 2,
+                    "title": "Country Code",
+                    "type": "string",
+                    "description": "Country Code used to generate and validate the invoice."
+                  },
+                  "region": {
+                    "maxLength": 60,
+                    "type": "string",
+                    "title": "Region",
+                    "nullable": true,
+                    "description": "Region used to generate and validate the invoice."
+                  }
+                },
+                "required": [
+                  "line1",
+                  "city",
+                  "postal_code",
+                  "country_code"
+                ],
+                "title": "Address",
+                "type": "object",
+                "description": "Address used to generate and validate the invoice."
+              },
+              "trading_name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string",
+                "title": "Trading Name",
+                "nullable": true,
+                "description": "Trading Name used to generate and validate the invoice."
+              },
+              "vat_id": {
+                "maxLength": 30,
+                "minLength": 2,
+                "type": "string",
+                "title": "Vat Id",
+                "nullable": true,
+                "description": "Vat Id used to generate and validate the invoice."
+              },
+              "tax_id": {
+                "maxLength": 40,
+                "minLength": 2,
+                "type": "string",
+                "title": "Tax Id",
+                "nullable": true,
+                "description": "Tax Id used to generate and validate the invoice."
+              },
+              "registration_id": {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string",
+                "title": "Registration Id",
+                "nullable": true,
+                "description": "Registration Id used to generate and validate the invoice."
+              },
+              "registration_scheme": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Registration Scheme",
+                "nullable": true,
+                "description": "Registration Scheme used to generate and validate the invoice."
+              },
+              "additional_identifiers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "value": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Value",
+                      "type": "string",
+                      "description": "Value used to generate and validate the invoice."
+                    },
+                    "scheme_id": {
+                      "maxLength": 35,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Scheme Id",
+                      "nullable": true,
+                      "description": "Scheme Id used to generate and validate the invoice."
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 20,
+                "title": "Additional Identifiers",
+                "type": "array",
+                "description": "Additional Identifiers used to generate and validate the invoice."
+              },
+              "endpoint_id": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string",
+                "title": "Endpoint Id",
+                "nullable": true,
+                "description": "Endpoint Id used to generate and validate the invoice."
+              },
+              "endpoint_scheme": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Endpoint Scheme",
+                "nullable": true,
+                "description": "Endpoint Scheme used to generate and validate the invoice."
+              },
+              "legal_information": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string",
+                "title": "Legal Information",
+                "nullable": true,
+                "description": "Legal Information used to generate and validate the invoice."
+              },
+              "contact_name": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Contact Name",
+                "nullable": true,
+                "description": "Contact Name used to generate and validate the invoice."
+              },
+              "contact_department": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Contact Department",
+                "nullable": true,
+                "description": "Contact Department used to generate and validate the invoice."
+              },
+              "phone": {
+                "maxLength": 50,
+                "minLength": 3,
+                "type": "string",
+                "title": "Phone",
+                "nullable": true,
+                "description": "Phone used to generate and validate the invoice."
+              },
+              "email": {
+                "maxLength": 254,
+                "minLength": 3,
+                "type": "string",
+                "title": "Email",
+                "nullable": true,
+                "description": "Email used to generate and validate the invoice."
+              }
+            },
+            "required": [
+              "name",
+              "address"
+            ],
+            "title": "Party",
+            "type": "object",
+            "nullable": true,
+            "description": "Party used to generate and validate the invoice."
+          },
+          "delivery_address": {
+            "additionalProperties": false,
+            "properties": {
+              "line1": {
+                "maxLength": 100,
+                "minLength": 1,
+                "title": "Line1",
+                "type": "string",
+                "description": "Line1 used to generate and validate the invoice."
+              },
+              "line2": {
+                "maxLength": 100,
+                "type": "string",
+                "title": "Line2",
+                "nullable": true,
+                "description": "Line2 used to generate and validate the invoice."
+              },
+              "line3": {
+                "maxLength": 100,
+                "type": "string",
+                "title": "Line3",
+                "nullable": true,
+                "description": "Line3 used to generate and validate the invoice."
+              },
+              "city": {
+                "maxLength": 60,
+                "minLength": 1,
+                "title": "City",
+                "type": "string",
+                "description": "City used to generate and validate the invoice."
+              },
+              "postal_code": {
+                "maxLength": 20,
+                "minLength": 1,
+                "title": "Postal Code",
+                "type": "string",
+                "description": "Postal Code used to generate and validate the invoice."
+              },
+              "country_code": {
+                "maxLength": 2,
+                "minLength": 2,
+                "title": "Country Code",
+                "type": "string",
+                "description": "Country Code used to generate and validate the invoice."
+              },
+              "region": {
+                "maxLength": 60,
+                "type": "string",
+                "title": "Region",
+                "nullable": true,
+                "description": "Region used to generate and validate the invoice."
+              }
+            },
+            "required": [
+              "line1",
+              "city",
+              "postal_code",
+              "country_code"
+            ],
+            "title": "Address",
+            "type": "object",
+            "nullable": true,
+            "description": "Address used to generate and validate the invoice."
+          },
+          "delivery_location_id": {
+            "additionalProperties": false,
+            "properties": {
+              "value": {
+                "maxLength": 200,
+                "minLength": 1,
+                "title": "Value",
+                "type": "string",
+                "description": "Value used to generate and validate the invoice."
+              },
+              "scheme_id": {
+                "maxLength": 35,
+                "minLength": 1,
+                "type": "string",
+                "title": "Scheme Id",
+                "nullable": true,
+                "description": "Scheme Id used to generate and validate the invoice."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "title": "Identifier",
+            "type": "object",
+            "nullable": true,
+            "description": "Identifier used to generate and validate the invoice."
+          },
+          "delivery_party_name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string",
+            "title": "Delivery Party Name",
+            "nullable": true,
+            "description": "Delivery Party Name used to generate and validate the invoice."
           },
           "lines": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 1000,
             "items": {
-              "type": "object",
               "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Id",
+                  "nullable": true,
+                  "description": "Id used to generate and validate the invoice."
+                },
+                "name": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Name",
+                  "nullable": true,
+                  "description": "Name used to generate and validate the invoice."
+                },
+                "description": {
+                  "maxLength": 1000,
+                  "minLength": 1,
+                  "title": "Description",
+                  "type": "string",
+                  "description": "Description used to generate and validate the invoice."
+                },
+                "note": {
+                  "maxLength": 500,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Note",
+                  "nullable": true,
+                  "description": "Note used to generate and validate the invoice."
+                },
+                "quantity": {
+                  "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                  "type": "string",
+                  "title": "Quantity",
+                  "description": "Quantity used to generate and validate the invoice."
+                },
+                "unit_code": {
+                  "default": "C62",
+                  "maxLength": 3,
+                  "minLength": 2,
+                  "title": "Unit Code",
+                  "type": "string",
+                  "description": "Unit Code used to generate and validate the invoice."
+                },
+                "unit_price": {
+                  "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                  "type": "string",
+                  "title": "Unit Price",
+                  "description": "Unit Price used to generate and validate the invoice."
+                },
+                "price_base_quantity": {
+                  "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                  "type": "string",
+                  "default": "1",
+                  "title": "Price Base Quantity",
+                  "description": "Price Base Quantity used to generate and validate the invoice."
+                },
+                "price_base_unit_code": {
+                  "maxLength": 3,
+                  "minLength": 2,
+                  "type": "string",
+                  "title": "Price Base Unit Code",
+                  "nullable": true,
+                  "description": "Price Base Unit Code used to generate and validate the invoice."
+                },
+                "gross_unit_price": {
+                  "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                  "type": "string",
+                  "title": "Gross Unit Price",
+                  "nullable": true,
+                  "description": "Gross Unit Price used to generate and validate the invoice."
+                },
+                "gross_price_discount": {
+                  "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                  "type": "string",
+                  "title": "Gross Price Discount",
+                  "nullable": true,
+                  "description": "Gross Price Discount used to generate and validate the invoice."
+                },
+                "tax_rate": {
+                  "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                  "type": "string",
+                  "title": "Tax Rate",
+                  "description": "Tax Rate used to generate and validate the invoice."
+                },
+                "tax_category": {
+                  "default": "S",
+                  "maxLength": 3,
+                  "minLength": 1,
+                  "title": "Tax Category",
+                  "type": "string",
+                  "description": "Tax Category used to generate and validate the invoice."
+                },
+                "tax_exemption_reason": {
+                  "maxLength": 500,
+                  "type": "string",
+                  "title": "Tax Exemption Reason",
+                  "nullable": true,
+                  "description": "Tax Exemption Reason used to generate and validate the invoice."
+                },
+                "tax_exemption_reason_code": {
+                  "maxLength": 35,
+                  "type": "string",
+                  "title": "Tax Exemption Reason Code",
+                  "nullable": true,
+                  "description": "Tax Exemption Reason Code used to generate and validate the invoice."
+                },
+                "allowances_charges": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "is_charge": {
+                        "title": "Is Charge",
+                        "type": "boolean",
+                        "description": "Is Charge used to generate and validate the invoice."
+                      },
+                      "amount": {
+                        "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                        "type": "string",
+                        "title": "Amount",
+                        "description": "Amount used to generate and validate the invoice."
+                      },
+                      "base_amount": {
+                        "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                        "type": "string",
+                        "title": "Base Amount",
+                        "nullable": true,
+                        "description": "Base Amount used to generate and validate the invoice."
+                      },
+                      "percentage": {
+                        "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                        "type": "string",
+                        "title": "Percentage",
+                        "nullable": true,
+                        "description": "Percentage used to generate and validate the invoice."
+                      },
+                      "reason": {
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "title": "Reason",
+                        "type": "string",
+                        "description": "Reason used to generate and validate the invoice."
+                      },
+                      "reason_code": {
+                        "maxLength": 35,
+                        "minLength": 1,
+                        "type": "string",
+                        "title": "Reason Code",
+                        "nullable": true,
+                        "description": "Reason Code used to generate and validate the invoice."
+                      },
+                      "tax_category": {
+                        "maxLength": 3,
+                        "minLength": 1,
+                        "type": "string",
+                        "title": "Tax Category",
+                        "nullable": true,
+                        "description": "Tax Category used to generate and validate the invoice."
+                      },
+                      "tax_rate": {
+                        "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                        "type": "string",
+                        "title": "Tax Rate",
+                        "nullable": true,
+                        "description": "Tax Rate used to generate and validate the invoice."
+                      },
+                      "tax_exemption_reason": {
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "type": "string",
+                        "title": "Tax Exemption Reason",
+                        "nullable": true,
+                        "description": "Tax Exemption Reason used to generate and validate the invoice."
+                      },
+                      "tax_exemption_reason_code": {
+                        "maxLength": 35,
+                        "minLength": 1,
+                        "type": "string",
+                        "title": "Tax Exemption Reason Code",
+                        "nullable": true,
+                        "description": "Tax Exemption Reason Code used to generate and validate the invoice."
+                      }
+                    },
+                    "required": [
+                      "is_charge",
+                      "amount",
+                      "reason"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 100,
+                  "title": "Allowances Charges",
+                  "type": "array",
+                  "description": "Allowances Charges used to generate and validate the invoice."
+                },
+                "period": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "start_date": {
+                      "type": "string",
+                      "title": "Start Date",
+                      "nullable": true,
+                      "description": "Start Date used to generate and validate the invoice.",
+                      "editor": "datepicker",
+                      "dateType": "absolute"
+                    },
+                    "end_date": {
+                      "type": "string",
+                      "title": "End Date",
+                      "nullable": true,
+                      "description": "End Date used to generate and validate the invoice.",
+                      "editor": "datepicker",
+                      "dateType": "absolute"
+                    },
+                    "description_code": {
+                      "maxLength": 35,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Description Code",
+                      "nullable": true,
+                      "description": "Description Code used to generate and validate the invoice."
+                    }
+                  },
+                  "title": "Period",
+                  "type": "object",
+                  "nullable": true,
+                  "description": "Period used to generate and validate the invoice."
+                },
+                "accounting_cost": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Accounting Cost",
+                  "nullable": true,
+                  "description": "Accounting Cost used to generate and validate the invoice."
+                },
+                "purchase_order_line_reference": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Purchase Order Line Reference",
+                  "nullable": true,
+                  "description": "Purchase Order Line Reference used to generate and validate the invoice."
+                },
+                "object_identifier": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "value": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Value",
+                      "type": "string",
+                      "description": "Value used to generate and validate the invoice."
+                    },
+                    "scheme_id": {
+                      "maxLength": 35,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Scheme Id",
+                      "nullable": true,
+                      "description": "Scheme Id used to generate and validate the invoice."
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "title": "Identifier",
+                  "type": "object",
+                  "nullable": true,
+                  "description": "Identifier used to generate and validate the invoice."
+                },
+                "seller_item_id": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Seller Item Id",
+                  "nullable": true,
+                  "description": "Seller Item Id used to generate and validate the invoice."
+                },
+                "buyer_item_id": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Buyer Item Id",
+                  "nullable": true,
+                  "description": "Buyer Item Id used to generate and validate the invoice."
+                },
+                "standard_item_id": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "value": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Value",
+                      "type": "string",
+                      "description": "Value used to generate and validate the invoice."
+                    },
+                    "scheme_id": {
+                      "maxLength": 35,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Scheme Id",
+                      "nullable": true,
+                      "description": "Scheme Id used to generate and validate the invoice."
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "title": "Identifier",
+                  "type": "object",
+                  "nullable": true,
+                  "description": "Identifier used to generate and validate the invoice."
+                },
+                "classifications": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "value": {
+                        "maxLength": 200,
+                        "minLength": 1,
+                        "title": "Value",
+                        "type": "string",
+                        "description": "Value used to generate and validate the invoice."
+                      },
+                      "scheme_id": {
+                        "maxLength": 35,
+                        "minLength": 1,
+                        "title": "Scheme Id",
+                        "type": "string",
+                        "description": "Scheme Id used to generate and validate the invoice."
+                      },
+                      "scheme_version": {
+                        "maxLength": 35,
+                        "minLength": 1,
+                        "type": "string",
+                        "title": "Scheme Version",
+                        "nullable": true,
+                        "description": "Scheme Version used to generate and validate the invoice."
+                      }
+                    },
+                    "required": [
+                      "value",
+                      "scheme_id"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 20,
+                  "title": "Classifications",
+                  "type": "array",
+                  "description": "Classifications used to generate and validate the invoice."
+                },
+                "attributes": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "title": "Name",
+                        "type": "string",
+                        "description": "Name used to generate and validate the invoice."
+                      },
+                      "value": {
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "title": "Value",
+                        "type": "string",
+                        "description": "Value used to generate and validate the invoice."
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "value"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 50,
+                  "title": "Attributes",
+                  "type": "array",
+                  "description": "Attributes used to generate and validate the invoice."
+                },
+                "origin_country_code": {
+                  "maxLength": 2,
+                  "minLength": 2,
+                  "type": "string",
+                  "title": "Origin Country Code",
+                  "nullable": true,
+                  "description": "Origin Country Code used to generate and validate the invoice."
+                }
+              },
               "required": [
                 "description",
                 "quantity",
                 "unit_price",
                 "tax_rate"
               ],
+              "type": "object"
+            },
+            "maxItems": 1000,
+            "minItems": 1,
+            "title": "Lines",
+            "type": "array",
+            "description": "Lines used to generate and validate the invoice."
+          },
+          "document_allowances_charges": {
+            "items": {
+              "additionalProperties": false,
               "properties": {
-                "id": {
+                "is_charge": {
+                  "title": "Is Charge",
+                  "type": "boolean",
+                  "description": "Is Charge used to generate and validate the invoice."
+                },
+                "amount": {
+                  "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
                   "type": "string",
+                  "title": "Amount",
+                  "description": "Amount used to generate and validate the invoice."
+                },
+                "base_amount": {
+                  "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                  "type": "string",
+                  "title": "Base Amount",
+                  "nullable": true,
+                  "description": "Base Amount used to generate and validate the invoice."
+                },
+                "percentage": {
+                  "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                  "type": "string",
+                  "title": "Percentage",
+                  "nullable": true,
+                  "description": "Percentage used to generate and validate the invoice."
+                },
+                "reason": {
+                  "maxLength": 500,
                   "minLength": 1,
-                  "maxLength": 30
-                },
-                "description": {
+                  "title": "Reason",
                   "type": "string",
+                  "description": "Reason used to generate and validate the invoice."
+                },
+                "reason_code": {
+                  "maxLength": 35,
                   "minLength": 1,
-                  "maxLength": 500
-                },
-                "quantity": {
                   "type": "string",
-                  "pattern": "^(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
-                  "description": "Decimal string. JSON floating-point numbers are rejected."
-                },
-                "unit_code": {
-                  "type": "string",
-                  "pattern": "^[A-Za-z0-9]{2,3}$",
-                  "default": "C62"
-                },
-                "unit_price": {
-                  "type": "string",
-                  "pattern": "^(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
-                  "description": "Decimal string. JSON floating-point numbers are rejected."
-                },
-                "tax_rate": {
-                  "type": "string",
-                  "pattern": "^(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
-                  "description": "Decimal string. JSON floating-point numbers are rejected."
+                  "title": "Reason Code",
+                  "nullable": true,
+                  "description": "Reason Code used to generate and validate the invoice."
                 },
                 "tax_category": {
-                  "type": "string",
+                  "maxLength": 3,
                   "minLength": 1,
-                  "maxLength": 2,
-                  "default": "S"
+                  "type": "string",
+                  "title": "Tax Category",
+                  "nullable": true,
+                  "description": "Tax Category used to generate and validate the invoice."
+                },
+                "tax_rate": {
+                  "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+                  "type": "string",
+                  "title": "Tax Rate",
+                  "nullable": true,
+                  "description": "Tax Rate used to generate and validate the invoice."
                 },
                 "tax_exemption_reason": {
-                  "type": "string",
+                  "maxLength": 500,
                   "minLength": 1,
-                  "maxLength": 500
+                  "type": "string",
+                  "title": "Tax Exemption Reason",
+                  "nullable": true,
+                  "description": "Tax Exemption Reason used to generate and validate the invoice."
+                },
+                "tax_exemption_reason_code": {
+                  "maxLength": 35,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Tax Exemption Reason Code",
+                  "nullable": true,
+                  "description": "Tax Exemption Reason Code used to generate and validate the invoice."
                 }
-              }
-            }
+              },
+              "required": [
+                "is_charge",
+                "amount",
+                "reason"
+              ],
+              "type": "object"
+            },
+            "maxItems": 100,
+            "title": "Document Allowances Charges",
+            "type": "array",
+            "description": "Document Allowances Charges used to generate and validate the invoice."
           },
           "payment": {
-            "type": "object",
             "additionalProperties": false,
             "properties": {
               "means_code": {
-                "type": "string",
-                "minLength": 1,
+                "default": "30",
                 "maxLength": 3,
-                "default": "30"
+                "minLength": 1,
+                "title": "Means Code",
+                "type": "string",
+                "description": "Means Code used to generate and validate the invoice."
+              },
+              "means_text": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Means Text",
+                "nullable": true,
+                "description": "Means Text used to generate and validate the invoice."
               },
               "reference": {
+                "maxLength": 140,
                 "type": "string",
-                "maxLength": 140
+                "title": "Reference",
+                "nullable": true,
+                "description": "Reference used to generate and validate the invoice."
+              },
+              "account_id": {
+                "maxLength": 70,
+                "minLength": 1,
+                "type": "string",
+                "title": "Account Id",
+                "nullable": true,
+                "description": "Account Id used to generate and validate the invoice."
+              },
+              "account_name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string",
+                "title": "Account Name",
+                "nullable": true,
+                "description": "Account Name used to generate and validate the invoice."
               },
               "iban": {
-                "type": "string",
+                "maxLength": 34,
                 "minLength": 5,
-                "maxLength": 34
+                "type": "string",
+                "title": "Iban",
+                "nullable": true,
+                "description": "Iban used to generate and validate the invoice."
               },
               "bic": {
-                "type": "string",
+                "maxLength": 11,
                 "minLength": 8,
-                "maxLength": 11
+                "type": "string",
+                "title": "Bic",
+                "nullable": true,
+                "description": "Bic used to generate and validate the invoice."
+              },
+              "bank_name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string",
+                "title": "Bank Name",
+                "nullable": true,
+                "description": "Bank Name used to generate and validate the invoice."
+              },
+              "mandate_reference": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Mandate Reference",
+                "nullable": true,
+                "description": "Mandate Reference used to generate and validate the invoice."
+              },
+              "creditor_identifier": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Creditor Identifier",
+                "nullable": true,
+                "description": "Creditor Identifier used to generate and validate the invoice."
+              },
+              "payer_account_id": {
+                "maxLength": 70,
+                "minLength": 1,
+                "type": "string",
+                "title": "Payer Account Id",
+                "nullable": true,
+                "description": "Payer Account Id used to generate and validate the invoice."
+              },
+              "card_primary_account_number": {
+                "maxLength": 6,
+                "minLength": 4,
+                "type": "string",
+                "title": "Card Primary Account Number",
+                "nullable": true,
+                "description": "Card Primary Account Number used to generate and validate the invoice."
+              },
+              "card_holder_name": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+                "title": "Card Holder Name",
+                "nullable": true,
+                "description": "Card Holder Name used to generate and validate the invoice."
               }
-            }
+            },
+            "title": "Payment",
+            "type": "object",
+            "description": "Payment used to generate and validate the invoice."
+          },
+          "payment_terms": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "type": "string",
+            "title": "Payment Terms",
+            "nullable": true,
+            "description": "Payment Terms used to generate and validate the invoice."
+          },
+          "prepaid_amount": {
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string",
+            "default": "0",
+            "title": "Prepaid Amount",
+            "description": "Prepaid Amount used to generate and validate the invoice."
+          },
+          "rounding_amount": {
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string",
+            "default": "0",
+            "title": "Rounding Amount",
+            "description": "Rounding Amount used to generate and validate the invoice."
           },
           "notes": {
-            "type": "array",
-            "maxItems": 20,
             "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 500
-            }
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Notes",
+            "type": "array",
+            "description": "Notes used to generate and validate the invoice."
+          },
+          "preceding_invoices": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "title": "Id",
+                  "type": "string",
+                  "description": "Id used to generate and validate the invoice."
+                },
+                "issue_date": {
+                  "type": "string",
+                  "title": "Issue Date",
+                  "nullable": true,
+                  "description": "Issue Date used to generate and validate the invoice.",
+                  "editor": "datepicker",
+                  "dateType": "absolute"
+                },
+                "type_code": {
+                  "maxLength": 35,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Type Code",
+                  "nullable": true,
+                  "description": "Type Code used to generate and validate the invoice."
+                },
+                "description": {
+                  "maxLength": 500,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Description",
+                  "nullable": true,
+                  "description": "Description used to generate and validate the invoice."
+                },
+                "id_scheme": {
+                  "maxLength": 35,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Id Scheme",
+                  "nullable": true,
+                  "description": "Id Scheme used to generate and validate the invoice."
+                },
+                "attachment": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "filename": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Filename",
+                      "nullable": true,
+                      "description": "Filename used to generate and validate the invoice."
+                    },
+                    "mime_type": {
+                      "maxLength": 100,
+                      "minLength": 3,
+                      "type": "string",
+                      "title": "Mime Type",
+                      "nullable": true,
+                      "description": "Mime Type used to generate and validate the invoice."
+                    },
+                    "description": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Description",
+                      "nullable": true,
+                      "description": "Description used to generate and validate the invoice."
+                    },
+                    "content_base64": {
+                      "type": "string",
+                      "title": "Content Base64",
+                      "nullable": true,
+                      "description": "Content Base64 used to generate and validate the invoice."
+                    },
+                    "external_uri": {
+                      "maxLength": 2000,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "External Uri",
+                      "nullable": true,
+                      "description": "External Uri used to generate and validate the invoice."
+                    }
+                  },
+                  "title": "Attachment",
+                  "type": "object",
+                  "nullable": true,
+                  "description": "Attachment used to generate and validate the invoice."
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "type": "object"
+            },
+            "maxItems": 100,
+            "title": "Preceding Invoices",
+            "type": "array",
+            "description": "Preceding Invoices used to generate and validate the invoice."
+          },
+          "supporting_documents": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "title": "Id",
+                  "type": "string",
+                  "description": "Id used to generate and validate the invoice."
+                },
+                "issue_date": {
+                  "type": "string",
+                  "title": "Issue Date",
+                  "nullable": true,
+                  "description": "Issue Date used to generate and validate the invoice.",
+                  "editor": "datepicker",
+                  "dateType": "absolute"
+                },
+                "type_code": {
+                  "maxLength": 35,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Type Code",
+                  "nullable": true,
+                  "description": "Type Code used to generate and validate the invoice."
+                },
+                "description": {
+                  "maxLength": 500,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Description",
+                  "nullable": true,
+                  "description": "Description used to generate and validate the invoice."
+                },
+                "id_scheme": {
+                  "maxLength": 35,
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "Id Scheme",
+                  "nullable": true,
+                  "description": "Id Scheme used to generate and validate the invoice."
+                },
+                "attachment": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "filename": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Filename",
+                      "nullable": true,
+                      "description": "Filename used to generate and validate the invoice."
+                    },
+                    "mime_type": {
+                      "maxLength": 100,
+                      "minLength": 3,
+                      "type": "string",
+                      "title": "Mime Type",
+                      "nullable": true,
+                      "description": "Mime Type used to generate and validate the invoice."
+                    },
+                    "description": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "Description",
+                      "nullable": true,
+                      "description": "Description used to generate and validate the invoice."
+                    },
+                    "content_base64": {
+                      "type": "string",
+                      "title": "Content Base64",
+                      "nullable": true,
+                      "description": "Content Base64 used to generate and validate the invoice."
+                    },
+                    "external_uri": {
+                      "maxLength": 2000,
+                      "minLength": 1,
+                      "type": "string",
+                      "title": "External Uri",
+                      "nullable": true,
+                      "description": "External Uri used to generate and validate the invoice."
+                    }
+                  },
+                  "title": "Attachment",
+                  "type": "object",
+                  "nullable": true,
+                  "description": "Attachment used to generate and validate the invoice."
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "type": "object"
+            },
+            "maxItems": 100,
+            "title": "Supporting Documents",
+            "type": "array",
+            "description": "Supporting Documents used to generate and validate the invoice."
           },
           "extensions": {
             "type": "object",
-            "description": "Product-specific fields. Unknown fields may be rejected by the selected product adapter."
+            "additionalProperties": false,
+            "properties": {
+              "peppol": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "business_process_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "title": "Business process id",
+                    "description": "Business process id used to generate and validate the invoice."
+                  }
+                },
+                "title": "Peppol",
+                "description": "Peppol used to generate and validate the invoice."
+              }
+            },
+            "required": [
+              "peppol"
+            ],
+            "description": "Product-specific options. Unknown fields are rejected.",
+            "title": "Extensions"
           }
-        }
+        },
+        "required": [
+          "invoice_number",
+          "issue_date",
+          "seller",
+          "buyer",
+          "lines"
+        ],
+        "type": "object"
       }
     }
   }
